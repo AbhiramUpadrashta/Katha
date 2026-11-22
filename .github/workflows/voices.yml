@@ -18,8 +18,10 @@ jobs:
       - name: Install
         run: |
           sudo apt-get install -y -qq ffmpeg >/dev/null
-          pip install -q torch --index-url https://download.pytorch.org/whl/cpu
-          pip install -q git+https://github.com/huggingface/parler-tts.git soundfile
+          pip install -q torch==2.5.1 torchaudio==2.5.1 --index-url https://download.pytorch.org/whl/cpu
+          printf 'torch==2.5.1\ntorchaudio==2.5.1\n' > /tmp/pin.txt
+          pip install -q -c /tmp/pin.txt git+https://github.com/huggingface/parler-tts.git soundfile
+          python -c "import torchaudio, parler_tts; print('voice tools ready')"
       - name: Record
         env: { HF_TOKEN: "${{ secrets.HF_TOKEN }}" }
         run: python tools/voices.py ${{ matrix.lang }}
