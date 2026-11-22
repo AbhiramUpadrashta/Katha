@@ -276,7 +276,8 @@ document.addEventListener("keydown", e => { if (!cur) return; if (e.key === "Arr
 
 // ---------- narration ----------
 const VOICE_LANG = { en: ["en-IN", "en-GB", "en"], hi: ["hi-IN", "hi"], te: ["te-IN", "te"] };
-let voices = [];
+let voices = [], AUDIO = {}, player = null;
+for (const l of ["en", "hi", "te"]) fetch(`audio/${l}/index.json`, { cache: "no-store" }).then(r => r.ok ? r.json() : {}).then(j => AUDIO[l] = j).catch(() => {});
 function loadVoices() { try { voices = speechSynthesis.getVoices(); } catch { voices = []; } }
 if (window.speechSynthesis) { loadVoices(); speechSynthesis.onvoiceschanged = loadVoices; }
 function pickVoice(l) { for (const code of VOICE_LANG[l]) { const v = voices.find(v => v.lang.replace("_", "-").toLowerCase().startsWith(code.toLowerCase())); if (v) return v; } return null; }
@@ -284,6 +285,7 @@ function setPlayIcon() { $("#playIco").innerHTML = playing ? '<path d="M6 4h4v16
 function togglePlay(force) { playing = force === undefined ? !playing : force; setPlayIcon(); playing ? speakPanel() : stopSpeech(true); }
 function stopSpeech(keepFlag) {
   if (!keepFlag) { playing = false; setPlayIcon(); }
+  if (player) { player.onended = null; player.pause(); player = null; }
   try { window.KathaAndroid ? KathaAndroid.stop() : speechSynthesis.cancel(); } catch {}
   document.querySelectorAll(".cap").forEach(c => c.classList.remove("speaking"));
 }
@@ -297,6 +299,16 @@ function speakPanel() {
   if (!cur) return;
   const text = cur.p[idx][LI[lang]], cap = $("#stage .cap"); cap && cap.classList.add("speaking");
   const words = cap ? [...cap.querySelectorAll(".w")] : [];
+  // Recorded narration (natural voice) when available, the device voice otherwise.
+  const key = `${cur.id}-${idx}`;
+  if (AUDIO[lang] && AUDIO[lang][key]) {
+    player = new Audio(`audio/${lang}/${key}.mp3?v=${AUDIO[lang][key]}`);
+    player.playbackRate = rate; player.preservesPitch = true;
+    player.ontimeupdate = () => { if (!player || !player.duration) return; const k = Math.floor(player.currentTime / player.duration * words.length); words.forEach((w, i) => w.classList.toggle("hl", i === k)); };
+    player.onended = () => { words.forEach(w => w.classList.remove("hl")); player = null; afterPanel(); };
+    player.play().catch(() => { player = null; playing = false; setPlayIcon(); });
+    return;
+  }
   if (window.KathaAndroid) { KathaAndroid.speak(text, lang, rate); return; }
   if (!window.speechSynthesis) { toast(T("novoice")); playing = false; setPlayIcon(); return; }
   const u = new SpeechSynthesisUtterance(text), v = pickVoice(lang);

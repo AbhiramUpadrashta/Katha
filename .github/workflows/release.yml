@@ -1,9 +1,6 @@
 name: Build & Release Katha (Android)
 on:
-  push:
-    branches: [main]
-    paths: ["release.txt"]
-  workflow_dispatch:
+  workflow_dispatch:   # started by "Record voices" once the narration is ready
 permissions: { contents: write }
 concurrency: { group: release, cancel-in-progress: false }
 jobs:
