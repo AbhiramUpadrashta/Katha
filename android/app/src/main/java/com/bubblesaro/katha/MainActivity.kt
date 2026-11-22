@@ -9,6 +9,7 @@ import android.speech.tts.UtteranceProgressListener
 import android.webkit.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.webkit.WebViewAssetLoader
+import androidx.webkit.WebViewClientCompat
 import java.util.Locale
 
 /** Katha: the web app in a WebView, with Android's own text-to-speech (English, Hindi and Telugu voices). */
