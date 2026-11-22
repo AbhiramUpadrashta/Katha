@@ -1,6 +1,6 @@
 # Katha — by Bubbles
 
-Comics you can read **and** hear, in **English, Hindi and Telugu**: Ramayana, Mahabharata, Gajendra Moksham, Tenali Rama, Akbar–Birbal, Vikram–Betaal, Panchatantra, Greek and Egyptian myths — retold and drawn as original comics.
+Comics you can read **and** hear, in **English, Hindi and Telugu**: Ramayana, Mahabharata, Gajendra Moksham, Tenali Ramakrishna (6 stories), Akbar–Birbal (5 stories), Vikram–Betaal, Panchatantra, Greek and Egyptian myths — retold and drawn as original comics.
 
 - **Web app:** https://bubbles.foo.ng/Katha/app/
 - **Android:** [Katha.apk](https://github.com/AbhiramUpadrashta/Katha/releases/latest/download/Katha.apk)
