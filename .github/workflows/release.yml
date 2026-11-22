@@ -30,11 +30,12 @@ jobs:
           KATHA_KS_PASS: "${{ secrets.KS_PASS }}"
           KS_B64: "${{ secrets.KS_B64 }}"
         run: |
+          set -o pipefail
           echo "$KS_B64" | base64 -d > android/katha.jks
           mkdir -p android/app/src/main/assets/www && cp -R docs/. android/app/src/main/assets/www/
           sed -i "s/const APP_VERSION = \"[^\"]*\"/const APP_VERSION = \"$KATHA_VERSION\"/" android/app/src/main/assets/www/app/index.html
           rm -f android/app/src/main/assets/www/app/sw.js
-          gradle -p android assembleRelease --no-daemon
+          gradle -p android assembleRelease --no-daemon 2>&1 | tee g.log || { grep -E "^e: |error:|What went wrong|Could not|Execution failed|Cause" -A2 g.log | head -40 | while IFS= read -r l; do echo "::error::$l"; done; exit 1; }
           cp android/app/build/outputs/apk/release/app-release.apk Katha.apk
       - name: Publish release
         if: steps.v.outputs.go == 'true'

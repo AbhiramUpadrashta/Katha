@@ -28,7 +28,7 @@ class MainActivity : AppCompatActivity() {
         web.settings.mediaPlaybackRequiresUserGesture = false
         web.setBackgroundColor(0xFF0C0716.toInt())
         web.webViewClient = object : WebViewClientCompat() {
-            override fun shouldInterceptRequest(view: WebView, request: WebResourceRequest) = loader.shouldInterceptRequest(request.url)
+            override fun shouldInterceptRequest(view: WebView, request: WebResourceRequest): WebResourceResponse? = loader.shouldInterceptRequest(request.url)
             override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest): Boolean {
                 val u = request.url
                 if (u.host == "appassets.androidplatform.net") return false
@@ -40,7 +40,7 @@ class MainActivity : AppCompatActivity() {
         tts?.setOnUtteranceProgressListener(object : UtteranceProgressListener() {
             override fun onStart(id: String?) {}
             override fun onDone(id: String?) { runOnUiThread { web.evaluateJavascript("window.__ttsDone&&__ttsDone()", null) } }
-            @Deprecated("") override fun onError(id: String?) { onDone(id) }
+            @Suppress("OVERRIDE_DEPRECATION") override fun onError(id: String?) { runOnUiThread { web.evaluateJavascript("window.__ttsDone&&__ttsDone()", null) } }
         })
         if (savedInstanceState == null) web.loadUrl("https://appassets.androidplatform.net/assets/www/app/index.html")
         else web.restoreState(savedInstanceState)
@@ -60,7 +60,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onSaveInstanceState(outState: Bundle) { super.onSaveInstanceState(outState); web.saveState(outState) }
-    @Deprecated("") override fun onBackPressed() { if (web.canGoBack()) web.goBack() else super.onBackPressed() }
+    @Suppress("DEPRECATION", "OVERRIDE_DEPRECATION") override fun onBackPressed() { if (web.canGoBack()) web.goBack() else super.onBackPressed() }
     override fun onPause() { tts?.stop(); super.onPause() }
     override fun onDestroy() { tts?.shutdown(); super.onDestroy() }
 }
