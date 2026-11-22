@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Katha — comics you can read and hear · by Bubbles</title>
+<meta name="description" content="Katha by Bubbles: Ramayana, Mahabharata, Tenali Rama, Akbar–Birbal, Panchatantra, Greek and Egyptian myths as illustrated comics in English, Hindi and Telugu. Read them or listen. Free on web and Android.">
+<link rel="icon" href="icon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bungee&family=Space+Grotesk:wght@400;500;600;700&family=Noto+Sans+Devanagari:wght@500;700&family=Noto+Sans+Telugu:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#0c0716;--card:#1a1129;--paper:#fff1c9;--text:#f7f1ff;--mute:#b6a8cf;--pink:#ff4fa3;--cyan:#38e8ff;--amber:#ffc23d;--line:#ffffff1a}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--ink);color:var(--text);font-family:"Space Grotesk",system-ui,sans-serif;overflow-x:hidden;line-height:1.55}
+body::before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.07;background-image:radial-gradient(#fff 1px,transparent 1.2px);background-size:5px 5px;z-index:0}
+a{color:inherit;text-decoration:none}
+.wrap{max-width:1160px;margin:0 auto;padding:0 20px;position:relative;z-index:1}
+nav{position:sticky;top:0;z-index:10;background:#0c0716cc;backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+nav .wrap{display:flex;align-items:center;gap:20px;height:64px}
+nav img{width:34px}
+.logo{font-family:Bungee;font-size:20px;background:linear-gradient(90deg,var(--amber),var(--pink),var(--cyan));-webkit-background-clip:text;background-clip:text;color:transparent}
+nav .sp{flex:1}nav .l{color:var(--mute);font-size:14px}nav .l:hover{color:#fff}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:13px 22px;border-radius:14px;font-weight:700;border:1px solid var(--line);background:#ffffff0d;transition:.25s}
+.btn:hover{transform:translateY(-2px);border-color:#ffffff44}
+.btn.pri{background:linear-gradient(90deg,var(--pink),#b34bff);border:0;box-shadow:0 12px 36px #ff4fa355}
+.btn svg{width:18px;height:18px;fill:currentColor}
+header{padding:70px 0 40px;position:relative}
+.orb{position:absolute;border-radius:50%;filter:blur(100px);opacity:.45;z-index:0;animation:fl 14s ease-in-out infinite}
+@keyframes fl{50%{transform:translate(40px,-30px) scale(1.1)}}
+.hgrid{display:grid;grid-template-columns:1.05fr 1fr;gap:40px;align-items:center}
+.stamp{display:inline-block;font-family:Bungee;font-size:12px;letter-spacing:.1em;color:var(--ink);background:var(--amber);padding:5px 12px;border-radius:6px;transform:rotate(-3deg);box-shadow:3px 3px 0 var(--pink);margin-bottom:18px}
+h1{font-family:Bungee;font-size:clamp(40px,6.4vw,78px);line-height:.98;letter-spacing:.01em;text-shadow:4px 4px 0 var(--pink),8px 8px 0 #38e8ff55}
+h1 span{color:var(--amber)}
+.lead{color:var(--mute);font-size:clamp(16px,2vw,19px);max-width:540px;margin:22px 0 28px}
+.cta{display:flex;gap:12px;flex-wrap:wrap}
+.small{color:var(--mute);font-size:13px;margin-top:14px}
+.tri{display:flex;gap:10px;margin-top:22px;flex-wrap:wrap}
+.tri span{padding:8px 14px;border-radius:999px;border:1px solid var(--line);background:#ffffff08;font-weight:600}
+.tri .hi{font-family:"Noto Sans Devanagari"}.tri .te{font-family:"Noto Sans Telugu"}
+/* stacked comic panels */
+.stack{position:relative;height:520px}
+.pn{position:absolute;width:300px;background:var(--paper);padding:8px;border-radius:14px;box-shadow:0 30px 70px #000b,0 0 0 1px #fff2;transition:.6s cubic-bezier(.2,.8,.2,1)}
+.pn .pic{aspect-ratio:1;border:3px solid var(--ink);border-radius:8px;overflow:hidden}.pn .pic svg{width:100%;height:100%;display:block}
+.pn .cap{margin-top:7px;border:2.5px solid var(--ink);border-radius:7px;background:#f6dfa5;color:var(--ink);font-size:13.5px;padding:8px 10px;font-weight:500;min-height:58px}
+.pn:nth-child(1){left:0;top:40px;transform:rotate(-8deg)}.pn:nth-child(2){left:28%;top:0;transform:rotate(3deg);z-index:2}.pn:nth-child(3){right:0;top:90px;transform:rotate(9deg)}
+.stack:hover .pn:nth-child(1){transform:rotate(-12deg) translateX(-20px)}.stack:hover .pn:nth-child(3){transform:rotate(13deg) translateX(20px)}
+section{padding:90px 0}
+.center{text-align:center}
+.eyebrow{font-family:Bungee;font-size:12px;letter-spacing:.14em;color:var(--cyan);margin-bottom:12px}
+h2{font-family:Bungee;font-size:clamp(28px,4.4vw,48px);line-height:1.05;text-shadow:3px 3px 0 #ff4fa399}
+.sub{color:var(--mute);max-width:620px;margin:14px auto 0;font-size:17px}
+.feat{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:46px}
+.f{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:26px;position:relative;overflow:hidden;transition:.3s}
+.f:hover{transform:translateY(-5px);border-color:#ff4fa366;box-shadow:0 20px 50px #ff4fa322}
+.f .ic{width:50px;height:50px;border-radius:14px;display:grid;place-items:center;background:var(--c);box-shadow:0 0 26px var(--c);margin-bottom:16px}
+.f .ic svg{width:24px;height:24px;stroke:#0c0716;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.f h3{font-size:19px;margin-bottom:6px}.f p{color:var(--mute);font-size:14.5px}
+.shelf{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:16px;margin-top:44px}
+.cv{background:var(--paper);padding:6px;border-radius:12px;box-shadow:0 14px 30px #0008;transition:.3s;transform:rotate(var(--r))}
+.cv:hover{transform:rotate(0) translateY(-6px);box-shadow:0 0 0 2px var(--pink),0 20px 40px #ff4fa333}
+.cv .pic{aspect-ratio:1/1.1;border:2.5px solid var(--ink);border-radius:8px;overflow:hidden}.cv .pic svg{width:100%;height:100%;display:block}
+.cv b{display:block;color:var(--ink);font-size:13.5px;padding:7px 3px 3px;line-height:1.2}
+.phone{width:300px;margin:auto;border-radius:44px;padding:12px;background:linear-gradient(145deg,#2a1d40,#0c0716);box-shadow:0 40px 100px #000c,0 0 0 2px #ffffff18,0 0 80px #ff4fa333}
+.phone iframe{width:100%;height:600px;border:0;border-radius:34px;background:var(--ink)}
+.split{display:grid;grid-template-columns:1fr 1fr;gap:50px;align-items:center}
+.list{margin-top:20px;display:grid;gap:12px}
+.list div{display:flex;gap:12px;align-items:flex-start;color:var(--mute)}
+.list b{color:#fff}
+.list i{flex:none;width:26px;height:26px;border-radius:8px;background:linear-gradient(135deg,var(--pink),#b34bff);display:grid;place-items:center;font-style:normal;font-weight:700;color:#fff;font-size:13px}
+.dl{background:linear-gradient(135deg,#ff4fa322,#38e8ff18,#ffc23d22);border:1px solid var(--line);border-radius:30px;padding:60px 24px;text-align:center}
+footer{border-top:1px solid var(--line);padding:30px 0;color:var(--mute);font-size:13px}
+footer .wrap{display:flex;gap:16px;flex-wrap:wrap;align-items:center}
+.rv{opacity:0;transform:translateY(26px);transition:.9s cubic-bezier(.2,.7,.2,1)}.rv.in{opacity:1;transform:none}
+.scene .spin{animation:sp 30s linear infinite}@keyframes sp{to{transform:rotate(360deg)}}
+.scene .tw{animation:tw 2.4s infinite}@keyframes tw{50%{opacity:.2}}
+.scene .flick{animation:fk 1.2s infinite}@keyframes fk{50%{transform:scaleY(1.12)}}
+@media(max-width:880px){.hgrid,.split{grid-template-columns:1fr}.stack{height:440px;max-width:420px;margin:auto}.pn{width:240px}.feat{grid-template-columns:1fr}nav .l{display:none}}
+</style>
+</head>
+<body>
+<nav><div class="wrap"><img src="icon.svg" alt=""><span class="logo">KATHA</span><span class="sp"></span>
+<a class="l" href="#features">Features</a><a class="l" href="#library">Stories</a><a class="l" href="#android">Android</a>
+<a class="btn pri" href="app/">Open app</a></div></nav>
+
+<header><div class="wrap hgrid">
+  <div class="orb" style="width:420px;height:420px;background:#ff4fa3;left:-160px;top:-60px"></div>
+  <div class="orb" style="width:380px;height:380px;background:#38e8ff;right:-120px;top:120px;animation-delay:-5s"></div>
+  <div class="rv">
+    <span class="stamp">By Bubbles · Free</span>
+    <h1>Old stories.<br><span>New</span> glow.</h1>
+    <p class="lead">Epics, legends and folk tales drawn as comics — read them panel by panel, or press play and listen. In English, Hindi and Telugu.</p>
+    <div class="cta">
+      <a class="btn pri" href="app/"><svg viewBox="0 0 24 24"><path d="M7 4l13 8-13 8z"/></svg>Start reading</a>
+      <a class="btn" href="https://github.com/AbhiramUpadrashta/Katha/releases/latest/download/Katha.apk"><svg viewBox="0 0 24 24"><path d="M17.6 9.48l1.84-3.18a.4.4 0 0 0-.7-.4l-1.86 3.22a11.4 11.4 0 0 0-9.76 0L5.26 5.9a.4.4 0 0 0-.7.4L6.4 9.48A10.8 10.8 0 0 0 1 18h22a10.8 10.8 0 0 0-5.4-8.52zM7 15.25a1.25 1.25 0 1 1 0-2.5 1.25 1.25 0 0 1 0 2.5zm10 0a1.25 1.25 0 1 1 0-2.5 1.25 1.25 0 0 1 0 2.5z"/></svg>Android app</a>
+    </div>
+    <div class="tri"><span>English</span><span class="hi">हिंदी</span><span class="te">తెలుగు</span></div>
+    <p class="small">Works in any browser, on iPhone too. Free, no account, no ads.</p>
+  </div>
+  <div class="stack rv" id="stack"></div>
+</div></header>
+
+<section id="features"><div class="wrap">
+  <div class="center rv"><div class="eyebrow">Read · Listen · Switch</div><h2>A comic shop from the past,<br>built for the future.</h2>
+  <p class="sub">Vintage paper, halftone dots and neon ink — with narration, search and three languages a tap away.</p></div>
+  <div class="feat" id="feat"></div>
+</div></section>
+
+<section id="library" style="padding-top:20px"><div class="wrap">
+  <div class="center rv"><div class="eyebrow">The library</div><h2>Gods, kings, tricksters<br>and talking animals.</h2>
+  <p class="sub">Ramayana, Mahabharata, Gajendra Moksham, Tenali Rama, Akbar–Birbal, Vikram–Betaal, Panchatantra, Greek and Egyptian myths. New stories arrive with every update.</p></div>
+  <div class="shelf" id="shelf"></div>
+</div></section>
+
+<section id="android"><div class="wrap split">
+  <div class="phone rv"><iframe src="app/" title="Katha app preview" loading="lazy"></iframe></div>
+  <div class="rv"><div class="eyebrow">Android app</div><h2>Stories in your pocket.</h2>
+  <p class="sub" style="margin-left:0">The Android app narrates with your phone's own Hindi and Telugu voices, works offline and tells you when a new version is ready.</p>
+  <div class="list">
+    <div><i>1</i><span><b>Download Katha.apk</b> on your phone.</span></div>
+    <div><i>2</i><span><b>Open it and tap Install.</b> Allow installs from your browser if Android asks.</span></div>
+    <div><i>3</i><span><b>Updates:</b> open Settings → Check for updates, or wait for the in-app prompt.</span></div>
+  </div>
+  <div class="cta" style="margin-top:24px"><a class="btn pri" href="https://github.com/AbhiramUpadrashta/Katha/releases/latest/download/Katha.apk">Download for Android</a></div></div>
+</div></section>
+
+<section><div class="wrap"><div class="dl rv">
+  <h2>Pick a story.<br>Press play.</h2>
+  <p class="sub">Free forever — made by Bubbles.</p>
+  <div class="cta" style="justify-content:center;margin-top:26px"><a class="btn pri" href="app/">Open Katha</a><a class="btn" href="https://github.com/AbhiramUpadrashta/Katha/releases/latest/download/Katha.apk">Android APK</a></div>
+</div></div></section>
+
+<footer><div class="wrap"><span>© 2026 Katha · by <a href="https://bubbles.foo.ng/">Bubbles Aro</a></span><span style="flex:1"></span>
+<span>Stories from public-domain epics, folk tales and myths, retold and drawn as original comics.</span>
+<a href="https://bubbles.foo.ng/projects.html">More apps</a><a href="mailto:abhi@bubbles.foo.ng">Support</a></div></footer>
+
+<script src="app/stories.js"></script>
+<script src="app/art.js"></script>
+<script>
+const pick = [["ramayana", 3, 1], ["perseus", 2, 0], ["gajendra", 3, 2]];
+document.getElementById("stack").innerHTML = pick.map(([id, i, l]) => { const s = STORIES.find(x => x.id === id); return `<div class="pn"><div class="pic">${renderScene(s.p[i][0])}</div><div class="cap" style="font-family:${["Space Grotesk", "Noto Sans Devanagari", "Noto Sans Telugu"][l]}">${s.p[i][l + 1]}</div></div>`; }).join("");
+document.getElementById("shelf").innerHTML = STORIES.map((s, i) => `<a class="cv" href="app/" style="--r:${((i * 37) % 5 - 2) * .7}deg"><div class="pic">${renderScene(s.p[0][0])}</div><b>${s.t.en}</b></a>`).join("");
+const F = [["#ff4fa3", '<path d="M4 5h16v11H8l-4 4z"/>', "Three languages", "English, हिंदी and తెలుగు. Switch any time — even in the middle of a story."],
+ ["#38e8ff", '<path d="M11 5L6 9H2v6h4l5 4zM15.5 8.5a5 5 0 0 1 0 7M19 5a10 10 0 0 1 0 14"/>', "Listen along", "Tap play for narration with the spoken word highlighted, and auto-turning pages."],
+ ["#ffc23d", '<rect x="4" y="3" width="16" height="7" rx="1"/><rect x="4" y="14" width="16" height="7" rx="1"/>', "Panel or strip", "Read one big panel at a time with page turns, or scroll the whole strip."],
+ ["#5cffc0", '<circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/>', "Search everything", "Find stories by title, hero or a line of text in any of the three languages."],
+ ["#b34bff", '<path d="M12 21s-7-4.5-9.5-9A5.5 5.5 0 0 1 12 6a5.5 5.5 0 0 1 9.5 6C19 16.5 12 21 12 21z"/>', "Favourites & resume", "Heart the stories you love, and pick up right where you stopped."],
+ ["#ff7a3d", '<path d="M4 12a8 8 0 0 1 14-5.3V4h2v6h-6V8h2.9A6 6 0 1 0 18 12h2a8 8 0 0 1-16 0z"/>', "Always fresh", "New stories land often. The app checks for updates and installs them in a tap."]];
+document.getElementById("feat").innerHTML = F.map(f => `<div class="f rv" style="--c:${f[0]}"><div class="ic"><svg viewBox="0 0 24 24">${f[1]}</svg></div><h3>${f[2]}</h3><p>${f[3]}</p></div>`).join("");
+const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); } }), { threshold: .12 });
+document.querySelectorAll(".rv").forEach(e => io.observe(e));
+</script>
+</body>
+</html>

@@ -1,0 +1,47 @@
+name: Build & Release Katha (Android)
+on:
+  push:
+    branches: [main]
+    paths: ["release.txt"]
+  workflow_dispatch:
+permissions: { contents: write }
+concurrency: { group: release, cancel-in-progress: false }
+jobs:
+  android:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - id: v
+        env: { GH_TOKEN: "${{ github.token }}" }
+        run: |
+          V=$(cat release.txt | tr -d '[:space:]'); echo "version=$V" >> "$GITHUB_OUTPUT"
+          if gh release view "v$V" >/dev/null 2>&1; then echo "go=false" >> "$GITHUB_OUTPUT"; else echo "go=true" >> "$GITHUB_OUTPUT"; fi
+      - if: steps.v.outputs.go == 'true'
+        uses: actions/setup-java@v4
+        with: { distribution: temurin, java-version: 17 }
+      - if: steps.v.outputs.go == 'true'
+        uses: gradle/actions/setup-gradle@v4
+        with: { gradle-version: "8.7" }
+      - name: Build APK
+        if: steps.v.outputs.go == 'true'
+        env:
+          KATHA_VERSION: "${{ steps.v.outputs.version }}"
+          KATHA_VERSION_CODE: "${{ github.run_number }}"
+          KATHA_KS_PASS: "${{ secrets.KS_PASS }}"
+          KS_B64: "${{ secrets.KS_B64 }}"
+        run: |
+          echo "$KS_B64" | base64 -d > android/katha.jks
+          mkdir -p android/app/src/main/assets/www && cp -R docs/. android/app/src/main/assets/www/
+          sed -i "s/const APP_VERSION = \"[^\"]*\"/const APP_VERSION = \"$KATHA_VERSION\"/" android/app/src/main/assets/www/app/index.html
+          rm -f android/app/src/main/assets/www/app/sw.js
+          gradle -p android assembleRelease --no-daemon
+          cp android/app/build/outputs/apk/release/app-release.apk Katha.apk
+      - name: Publish release
+        if: steps.v.outputs.go == 'true'
+        env: { GH_TOKEN: "${{ github.token }}" }
+        run: |
+          V=${{ steps.v.outputs.version }}
+          gh release create "v$V" Katha.apk --title "Katha $V" --latest --notes "Katha $V — comics you can read and hear, by Bubbles.
+
+          **Android:** download Katha.apk on your phone, open it and tap Install. The app tells you when a new version is ready.
+          **Web & iPhone:** https://bubbles.foo.ng/Katha/app/"

@@ -1,0 +1,23 @@
+name: Publish website
+on:
+  push:
+    branches: [main]
+    paths: ["docs/**", "release.txt"]
+  workflow_dispatch:
+permissions: { contents: read, pages: write, id-token: write }
+concurrency: { group: pages, cancel-in-progress: true }
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: { name: github-pages }
+    steps:
+      - uses: actions/checkout@v4
+      - name: Stamp version
+        run: |
+          V=$(cat release.txt | tr -d '[:space:]')
+          sed -i "s/const APP_VERSION = \"[^\"]*\"/const APP_VERSION = \"$V\"/" docs/app/index.html
+          echo "{\"version\":\"$V\"}" > docs/app/version.json
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with: { path: docs }
+      - uses: actions/deploy-pages@v4
