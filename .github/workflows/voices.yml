@@ -14,7 +14,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
-        with: { python-version: "3.11", cache: pip }
+        with: { python-version: "3.11" }
       - name: Install
         run: |
           sudo apt-get install -y -qq ffmpeg >/dev/null
@@ -39,6 +39,6 @@ jobs:
           for l in en hi te; do if [ -d "dl/audio-$l" ]; then rm -rf "docs/app/audio/$l"; mkdir -p docs/app/audio; cp -R "dl/audio-$l" "docs/app/audio/$l"; fi; done
           git config user.name "Katha voices"; git config user.email "actions@users.noreply.github.com"
           git add docs/app/audio
-          if ! git diff --cached --quiet; then git commit -qm "Record narration"; git pull -q --rebase origin main; git push -q origin main; fi
+          if ! git diff --cached --quiet; then git commit -qm "Record narration"; git pull -q --rebase origin main; git push -q origin main; fi || true
           gh workflow run pages.yml
           gh workflow run release.yml
