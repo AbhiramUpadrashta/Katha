@@ -11,13 +11,13 @@ jobs:
     runs-on: ubuntu-latest
     environment: { name: github-pages }
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Stamp version
         run: |
           V=$(cat release.txt | tr -d '[:space:]')
           sed -i "s/const APP_VERSION = \"[^\"]*\"/const APP_VERSION = \"$V\"/" docs/app/index.html
           echo "{\"version\":\"$V\"}" > docs/app/version.json
       - uses: actions/configure-pages@v5
-      - uses: actions/upload-pages-artifact@v3
+      - uses: actions/upload-pages-artifact@v4
         with: { path: docs }
       - uses: actions/deploy-pages@v4
