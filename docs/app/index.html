@@ -459,7 +459,7 @@ $("#sheet").onclick = e => { if (e.target.id === "sheet") $("#sheet").classList.
 
 // ---------- library + e-reader (Kindle-style) ----------
 let bk = null, sec = 0, page = 0, pages = 1, er = store.get("er", { fs: 19, theme: "paper", font: "serif" });
-let CATALOG = null, libLang = store.get("libLang", "all"), libGenre = "all", libShown = 60;
+let CATALOG = null, libLang = store.get("libLang", "all"), libGenre = "all", libShown = 120;
 const FONTS = { serif: { en: '"Noto Serif",Georgia,serif', hi: '"Noto Serif Devanagari","Noto Serif",serif', te: '"Noto Serif Telugu","Noto Serif",serif' },
                 sans: { en: '"Space Grotesk",system-ui,sans-serif', hi: '"Noto Sans Devanagari",sans-serif', te: '"Noto Sans Telugu",sans-serif' } };
 const LIBUI = { en: { lib: "Library", orig: "Katha originals", all: "All", more: "Show more", books: "books", loading: "Opening book…", cont: "Continue reading", none: "No books match.", offline: "Couldn't open this book. Check your connection." },
@@ -483,7 +483,8 @@ const SHELVES = [["Fantasy", "Fantasy"], ["Science Fiction", "Science Fiction"],
 const COVER_BASE = "https://gutenberg.pglaf.org/cache/epub/";
 function bkCard(b, pos) {
   const h = hueOf(b.id + b.t), p = Math.round(((pos["lib-" + b.id] || {}).p || 0) * 100);
-  return `<div class="bk" data-detail="${b.id}"><div class="cov"><div class="gen lang-${b.l}" style="--h:${h}"><b>${esc(b.t)}</b><i>${esc(b.a || "")}</i></div>${b.l === "en" ? `<img loading="lazy" alt="" src="${COVER_BASE}${b.id}/pg${b.id}.cover.medium.jpg" onerror="this.remove()">` : ""}</div>
+  const img = b.c || (!b.sw && b.l === "en" ? `${COVER_BASE}${b.id}/pg${b.id}.cover.medium.jpg` : "");
+  return `<div class="bk" data-detail="${b.id}"><div class="cov"><div class="gen lang-${b.l}" style="--h:${h}"><b>${esc(b.t)}</b><i>${esc(b.a || "")}</i></div>${img ? `<img loading="lazy" alt="" src="${img}" onerror="this.remove()">` : ""}</div>
     <div class="t lang-${b.l}">${esc(b.t)}</div><div class="a">${esc(b.a || "")}</div>${p ? `<div class="pb"><i style="width:${p}%"></i></div>` : ""}</div>`;
 }
 function studyCard(x) {
@@ -495,15 +496,25 @@ function renderBooks() {
   const pos = store.get("bookpos", {}), q = query.toLowerCase();
   $("#chips").innerHTML = [["all", L("all")], ["en", "English"], ["hi", "हिंदी"], ["te", "తెలుగు"]].map(([k, n]) => `<button class="chip ${libLang === k ? "on" : ""}" data-libl="${k}">${n}</button>`).join("");
   let html = `<div class="libhead"><h1>${L("lib")}</h1><p>${CATALOG ? CATALOG.length + " " + L("books") + " · " : ""}free classics, full books, Kindle-style reading</p></div>`;
-  const row = (title, inner, n) => `<section class="shelf"><h3>${title}${n ? `<small>${n}</small>` : ""}</h3><div class="row">${inner}</div><div class="plank"></div></section>`;
+  const row = (title, inner, n, key) => `<section class="shelf"><h3>${title}${n ? `<small>${n}</small>` : ""}${key ? `<button class="chip" style="margin-left:auto;padding:5px 12px" data-shelfall="${esc(key)}">See all →</button>` : ""}</h3><div class="row">${inner}</div><div class="plank"></div></section>`;
+  const cards = (x, pos) => x.slice(0, 40).map(b => bkCard(b, pos)).join("");
   if (!CATALOG) { $("#lists").innerHTML = html + `<p class="empty">${L("loading")}</p>`; loadCatalog().then(() => shelf_is_books() && renderBooks()); return; }
   const recent = store.get("recent", []).map(id => CATALOG.find(b => b.id === id)).filter(Boolean);
   if (!q && recent.length) html += row(L("cont"), recent.map(b => bkCard(b, pos)).join(""));
   const orig = BOOKS.filter(b => !q || Object.values(b.t).join(" ").toLowerCase().includes(q));
   if (orig.length && (libLang === "all" || libLang === lang)) html += row(L("orig"), orig.map(b => `<div class="bk" data-book="${b.id}"><div class="cov">${renderScene(b.cover)}</div><div class="t lang-${lang}">${b.t[lang]}</div><div class="a">${b.by[lang]}</div></div>`).join(""));
   const pool = CATALOG.filter(b => (libLang === "all" || b.l === libLang) && (!q || (b.t + " " + b.a + " " + b.g).toLowerCase().includes(q)));
-  if (libLang !== "en") { for (const l of ["te", "hi"]) { const x = pool.filter(b => b.l === l); if (x.length) html += row(l === "te" ? "తెలుగు పుస్తకాలు" : "हिंदी पुस्तकें", x.map(b => bkCard(b, pos)).join(""), x.length); } }
-  for (const [g, title] of SHELVES) { const x = pool.filter(b => b.g === g && b.l === "en"); if (x.length) html += row(title, x.map(b => bkCard(b, pos)).join(""), x.length); }
+  if (libGenre !== "all") { // one shelf, all its books
+    const [lg, g] = libGenre.split("|"), x = pool.filter(b => b.g === g && (lg === "*" || b.l === lg));
+    $("#lists").innerHTML = html + `<div class="shelf"><h3><button class="chip" data-shelfall="all">← Back</button> ${esc(g)}<small>${x.length}</small></h3></div><div class="books" style="grid-template-columns:repeat(auto-fill,minmax(128px,1fr));gap:22px">${x.slice(0, libShown).map(b => bkCard(b, pos)).join("")}</div>` + (x.length > libShown ? `<div style="text-align:center;margin:26px 0"><button class="btn" data-libmore="1">${L("more")}</button></div>` : "");
+    return;
+  }
+  if (libLang !== "en") for (const l of ["te", "hi"]) {
+    const books = pool.filter(b => b.l === l && b.g !== "Picture Stories"), pics = pool.filter(b => b.l === l && b.g === "Picture Stories");
+    if (books.length) html += row(l === "te" ? "తెలుగు పుస్తకాలు" : "हिंदी पुस्तकें", cards(books, pos), books.length);
+    if (pics.length) html += row(l === "te" ? "తెలుగు బొమ్మల కథలు" : "हिंदी चित्र-कथाएँ", cards(pics, pos), pics.length, l + "|Picture Stories");
+  }
+  for (const [g, title] of [...SHELVES, ["Picture Stories", "Picture stories for kids"]]) { const x = pool.filter(b => b.g === g && b.l === "en"); if (x.length) html += row(title, cards(x, pos), x.length, x.length > 40 ? "en|" + g : ""); }
   if (!q && libLang !== "hi" && libLang !== "te") for (const [title, list] of STUDY) html += row(title + " — free textbooks", list.map(studyCard).join(""), list.length);
   if (!pool.length && q) html += `<p class="empty">${L("none")}</p>`;
   $("#lists").innerHTML = html;
@@ -511,16 +522,19 @@ function renderBooks() {
 const shelf_is_books = () => store.get("shelf", "comics") === "books";
 function showDetail(id) {
   const b = CATALOG.find(x => x.id === id); if (!b) return;
-  const mins = Math.max(10, Math.round(b.k * 1024 / 6 / 230));
+  const mins = b.sw ? 5 : Math.max(10, Math.round(b.k * 1024 / 6 / 230));
   $("#detailBox").innerHTML = `<div class="bk" style="cursor:default"><div class="cov">${bkCard(b, {}).match(/<div class="cov">([\s\S]*?)<\/div>\s*<div class="t/)[1]}</div></div>
    <div><span class="x" data-close="1" style="cursor:pointer">×</span><h2 class="lang-${b.l}">${esc(b.t)}</h2><div class="by">${esc(b.a || "")}</div>
-   <div class="facts"><span>${esc(b.g)}</span><span>${{ en: "English", hi: "हिंदी", te: "తెలుగు" }[b.l]}</span><span>~${mins >= 120 ? Math.round(mins / 60) + " h" : mins + " min"} read</span><span>Full book · free</span></div>
-   <button class="go" data-lib="${b.id}">${((store.get("bookpos", {})["lib-" + b.id] || {}).p) ? L("cont") : "Start reading"}</button></div>`;
+   <div class="facts"><span>${esc(b.g)}</span><span>${{ en: "English", hi: "हिंदी", te: "తెలుగు" }[b.l]}</span><span>~${mins >= 120 ? Math.round(mins / 60) + " h" : mins + " min"} read</span><span>${b.sw ? "StoryWeaver · CC BY 4.0" : "Full book · free"}</span></div>
+   ${b.sw ? `<a class="go" href="https://storyweaver.org.in/en/stories/${b.sw}" target="_blank" rel="noopener" data-ext="1">Read on StoryWeaver ↗</a>` : `<button class="go" data-lib="${b.id}">`}${((store.get("bookpos", {})["lib-" + b.id] || {}).p) ? L("cont") : "Start reading"}${b.sw ? "" : "</button>"}</div>`;
   $("#detail").classList.add("open");
 }
 
 document.addEventListener("click", e => {
   const a = e.target.closest("[data-libl]"); if (a) { libLang = a.dataset.libl; store.set("libLang", libLang); libShown = 60; renderBooks(); return; }
+  const ex = e.target.closest("a[target=_blank]"); if (ex && window.KathaAndroid) { e.preventDefault(); KathaAndroid.openUrl(ex.href); return; }
+  const sa = e.target.closest("[data-shelfall]"); if (sa) { libGenre = sa.dataset.shelfall; libShown = 120; renderBooks(); scrollTo(0, 0); return; }
+  if (e.target.closest("[data-libmore]")) { libShown += 120; renderBooks(); return; }
   const dt = e.target.closest("[data-detail]"); if (dt) { showDetail(dt.dataset.detail); return; }
   if (e.target.closest("[data-close]") || e.target.id === "detail") { $("#detail").classList.remove("open"); return; }
   const l = e.target.closest("[data-lib]"); if (l) { $("#detail").classList.remove("open"); openLib(l.dataset.lib); }
@@ -546,7 +560,8 @@ async function openLib(id) {
   const meta = CATALOG.find(b => b.id === id); if (!meta) return;
   toast(L("loading"));
   try {
-    const text = await fetch(LIB_BASE + id + ".txt").then(r => { if (!r.ok) throw 0; return r.text(); });
+    const res = await fetch(LIB_BASE + id + ".txt.gz"); if (!res.ok) throw 0;
+    const text = await new Response(res.body.pipeThrough(new DecompressionStream("gzip"))).text();
     const { sections, toc } = textToBook(text);
     sections[0] = `<h1>${esc(meta.t)}</h1><div class="by">${esc(meta.a || "")}</div><div class="orn">✦ ✦ ✦</div>` + sections[0];
     bk = { key: "lib-" + id, title: meta.t, lang: meta.l, sections, toc, orig: false };
