@@ -1,6 +1,9 @@
 name: Build & Release Katha (Android)
 on:
-  workflow_dispatch:   # started by "Record voices" once the narration is ready
+  push:
+    branches: [main]
+    paths: ["release.txt"]
+  workflow_dispatch:
 permissions: { contents: write }
 concurrency: { group: release, cancel-in-progress: false }
 jobs:
@@ -32,6 +35,7 @@ jobs:
           mkdir -p android/app/src/main/assets/www && cp -R docs/. android/app/src/main/assets/www/
           sed -i "s/const APP_VERSION = \"[^\"]*\"/const APP_VERSION = \"$KATHA_VERSION\"/" android/app/src/main/assets/www/app/index.html
           rm -f android/app/src/main/assets/www/app/sw.js
+          rm -rf android/app/src/main/assets/www/books   # the library is read online from bubbles.foo.ng
           gradle -p android assembleRelease --no-daemon 2>&1 | tee g.log || { grep -E "^e: |error:|What went wrong|Could not|Execution failed|Cause" -A2 g.log | head -40 | while IFS= read -r l; do echo "::error::$l"; done; exit 1; }
           cp android/app/build/outputs/apk/release/app-release.apk Katha.apk
       - name: Publish release

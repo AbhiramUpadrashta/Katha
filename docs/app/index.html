@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Katha — comics you can read and hear</title>
+<title>Katha — comics and books to read</title>
 <meta name="description" content="Katha by Bubbles: illustrated comics of the Ramayana, Mahabharata, Tenali Rama, Akbar–Birbal, Panchatantra, Greek and Egyptian myths in English, Hindi and Telugu — read them or listen.">
 <meta name="theme-color" content="#0c0716">
 <link rel="icon" href="../icon.svg">
@@ -144,6 +144,11 @@ h2.sec::after{content:"";flex:1;height:2px;background:linear-gradient(90deg,var(
 .book .orn{position:absolute;top:14px;left:18px;right:14px;height:2px;background:linear-gradient(90deg,var(--amber),transparent);z-index:2}
 .book .meta{color:var(--mute);font-size:12.5px;margin-top:10px;display:flex;justify-content:space-between}
 .book .bar{height:3px;border-radius:3px;background:#ffffff18;margin-top:6px;overflow:hidden}.book .bar i{display:block;height:100%;background:var(--amber)}
+.book .cv.lib{background:linear-gradient(160deg,hsl(var(--h) 42% 30%),hsl(calc(var(--h) + 40) 48% 12%));padding:16px 14px 14px 20px;display:flex;flex-direction:column}
+.book .cv.lib::before{content:"";position:absolute;inset:10px 10px 10px 16px;border:1px solid #ffffff2a;border-radius:3px 8px 8px 3px;pointer-events:none}
+.cv.lib .lt{font-family:"Noto Serif","Noto Serif Devanagari","Noto Serif Telugu",Georgia,serif;font-size:18px;font-weight:700;line-height:1.22;margin-top:26px;color:#fff;z-index:2;display:-webkit-box;-webkit-line-clamp:6;-webkit-box-orient:vertical;overflow:hidden}
+.cv.lib .la{color:#ffd8a0;font-size:12.5px;margin-top:auto;z-index:2;font-style:italic}
+.cv.lib .lg{position:absolute;top:14px;right:14px;z-index:2;font-size:10px;font-weight:700;letter-spacing:.06em;color:#fff;background:#0006;padding:3px 7px;border-radius:6px}
 /* ---------- e-reader ---------- */
 .er{position:fixed;inset:0;z-index:70;display:none;flex-direction:column;--bg:#f6efe1;--fg:#2b2118;--mut:#8b7a66;--acc:#b4532a;background:var(--bg);color:var(--fg)}
 .er.open{display:flex;animation:fade .3s}
@@ -218,11 +223,8 @@ h2.sec::after{content:"";flex:1;height:2px;background:linear-gradient(90deg,var(
   <div class="stage" id="stage"></div>
   <div class="dots" id="dots"></div>
   <div class="ctrls">
-    <button class="cb speed" id="speed">1×</button>
     <button class="cb" id="prev" aria-label="Previous"><svg viewBox="0 0 24 24"><path d="M15 5L7 12l8 7z"/></svg></button>
-    <button class="cb play" id="play" aria-label="Listen"><svg viewBox="0 0 24 24" id="playIco"><path d="M7 4l13 8-13 8z"/></svg></button>
     <button class="cb" id="next" aria-label="Next"><svg viewBox="0 0 24 24"><path d="M9 5l8 7-8 7z"/></svg></button>
-    <button class="cb" id="auto" aria-label="Auto-play"><svg viewBox="0 0 24 24"><path d="M4 12a8 8 0 0 1 14-5.3V4h2v6h-6V8h2.9A6 6 0 1 0 18 12h2a8 8 0 0 1-16 0z"/></svg></button>
   </div>
   <div class="strip" id="strip"></div>
 </div>
@@ -256,9 +258,9 @@ const $ = s => document.querySelector(s);
 const store = { get(k, d) { try { const v = localStorage.getItem("katha." + k); return v === null ? d : JSON.parse(v) } catch { return d } },
                 set(k, v) { try { localStorage.setItem("katha." + k, JSON.stringify(v)) } catch {} } };
 const UI = {
-  en: { all: "All", favs: "Favourites", cont: "Continue reading", read: "Read", listen: "Listen", panels: "panels", search: "Search stories in any language…", none: "No stories match your search.", feat: "Featured", end: "The End", again: "Read again", more: "More stories", settings: "Settings", version: "Version", check: "Check for updates", latest: "You have the latest version.", newv: "A new version is ready", update: "Update", voice: "Narration voice", novoice: "No voice for this language on this device. Install it in your device's text-to-speech settings, or use the Katha Android app.", hero: "Epics, legends and folk tales — drawn as comics you can read or hear in English, Hindi and Telugu.", lib: "Library", about: "Made by Bubbles. Stories from public-domain epics, folk tales and myths, retold and drawn as original comics." },
-  hi: { all: "सभी", favs: "पसंदीदा", cont: "पढ़ना जारी रखें", read: "पढ़ें", listen: "सुनें", panels: "चित्र", search: "किसी भी भाषा में कहानी खोजें…", none: "कोई कहानी नहीं मिली।", feat: "ख़ास", end: "समाप्त", again: "फिर से पढ़ें", more: "और कहानियाँ", settings: "सेटिंग्स", version: "संस्करण", check: "अपडेट जाँचें", latest: "आपके पास नवीनतम संस्करण है।", newv: "नया संस्करण तैयार है", update: "अपडेट करें", voice: "आवाज़", novoice: "इस डिवाइस पर इस भाषा की आवाज़ नहीं है। डिवाइस की टेक्स्ट-टू-स्पीच सेटिंग्स में इसे जोड़ें, या Katha Android ऐप इस्तेमाल करें।", hero: "महाकाव्य, किंवदंतियाँ और लोककथाएँ — कॉमिक्स के रूप में, जिन्हें आप हिंदी, अंग्रेज़ी और तेलुगु में पढ़ या सुन सकते हैं।", lib: "संग्रह", about: "Bubbles द्वारा बनाया गया। सार्वजनिक महाकाव्यों, लोककथाओं और मिथकों की कहानियाँ, नए चित्रों के साथ।" },
-  te: { all: "అన్నీ", favs: "ఇష్టమైనవి", cont: "చదవడం కొనసాగించండి", read: "చదవండి", listen: "వినండి", panels: "చిత్రాలు", search: "ఏ భాషలోనైనా కథలు వెతకండి…", none: "ఏ కథా దొరకలేదు.", feat: "ప్రత్యేకం", end: "సమాప్తం", again: "మళ్లీ చదవండి", more: "మరిన్ని కథలు", settings: "సెట్టింగ్‌లు", version: "వెర్షన్", check: "అప్‌డేట్‌ల కోసం చూడండి", latest: "మీ దగ్గర తాజా వెర్షన్ ఉంది.", newv: "కొత్త వెర్షన్ సిద్ధంగా ఉంది", update: "అప్‌డేట్ చేయండి", voice: "వాయిస్", novoice: "ఈ పరికరంలో ఈ భాషకు వాయిస్ లేదు. టెక్స్ట్-టు-స్పీచ్ సెట్టింగ్‌లలో జోడించండి, లేదా Katha Android యాప్ వాడండి.", hero: "ఇతిహాసాలు, పురాణాలు, జానపద కథలు — తెలుగు, హిందీ, ఇంగ్లీష్‌లో చదవగలిగే, వినగలిగే కామిక్స్‌గా.", lib: "గ్రంథాలయం", about: "Bubbles రూపొందించింది. ఇతిహాసాలు, జానపద కథలు, పురాణాలను కొత్త బొమ్మలతో తిరిగి చెప్పిన కామిక్స్." },
+  en: { all: "All", favs: "Favourites", cont: "Continue reading", read: "Read", listen: "Listen", panels: "panels", search: "Search stories in any language…", none: "No stories match your search.", feat: "Featured", end: "The End", again: "Read again", more: "More stories", settings: "Settings", version: "Version", check: "Check for updates", latest: "You have the latest version.", newv: "A new version is ready", update: "Update", voice: "Narration voice", novoice: "No voice for this language on this device. Install it in your device's text-to-speech settings, or use the Katha Android app.", hero: "Epics, legends and folk tales — drawn as comics, plus hundreds of free classic books to read — in English, Hindi and Telugu.", lib: "Library", about: "Made by Bubbles. Stories from public-domain epics, folk tales and myths, retold and drawn as original comics." },
+  hi: { all: "सभी", favs: "पसंदीदा", cont: "पढ़ना जारी रखें", read: "पढ़ें", listen: "सुनें", panels: "चित्र", search: "किसी भी भाषा में कहानी खोजें…", none: "कोई कहानी नहीं मिली।", feat: "ख़ास", end: "समाप्त", again: "फिर से पढ़ें", more: "और कहानियाँ", settings: "सेटिंग्स", version: "संस्करण", check: "अपडेट जाँचें", latest: "आपके पास नवीनतम संस्करण है।", newv: "नया संस्करण तैयार है", update: "अपडेट करें", voice: "आवाज़", novoice: "इस डिवाइस पर इस भाषा की आवाज़ नहीं है। डिवाइस की टेक्स्ट-टू-स्पीच सेटिंग्स में इसे जोड़ें, या Katha Android ऐप इस्तेमाल करें।", hero: "महाकाव्य, किंवदंतियाँ और लोककथाएँ — कॉमिक्स के रूप में, और सैकड़ों मुफ़्त क्लासिक पुस्तकें — हिंदी, अंग्रेज़ी और तेलुगु में।", lib: "संग्रह", about: "Bubbles द्वारा बनाया गया। सार्वजनिक महाकाव्यों, लोककथाओं और मिथकों की कहानियाँ, नए चित्रों के साथ।" },
+  te: { all: "అన్నీ", favs: "ఇష్టమైనవి", cont: "చదవడం కొనసాగించండి", read: "చదవండి", listen: "వినండి", panels: "చిత్రాలు", search: "ఏ భాషలోనైనా కథలు వెతకండి…", none: "ఏ కథా దొరకలేదు.", feat: "ప్రత్యేకం", end: "సమాప్తం", again: "మళ్లీ చదవండి", more: "మరిన్ని కథలు", settings: "సెట్టింగ్‌లు", version: "వెర్షన్", check: "అప్‌డేట్‌ల కోసం చూడండి", latest: "మీ దగ్గర తాజా వెర్షన్ ఉంది.", newv: "కొత్త వెర్షన్ సిద్ధంగా ఉంది", update: "అప్‌డేట్ చేయండి", voice: "వాయిస్", novoice: "ఈ పరికరంలో ఈ భాషకు వాయిస్ లేదు. టెక్స్ట్-టు-స్పీచ్ సెట్టింగ్‌లలో జోడించండి, లేదా Katha Android యాప్ వాడండి.", hero: "ఇతిహాసాలు, పురాణాలు, జానపద కథలు — కామిక్స్‌గా, ఇంకా వందలాది ఉచిత క్లాసిక్ పుస్తకాలు — తెలుగు, హిందీ, ఇంగ్లీష్‌లో.", lib: "గ్రంథాలయం", about: "Bubbles రూపొందించింది. ఇతిహాసాలు, జానపద కథలు, పురాణాలను కొత్త బొమ్మలతో తిరిగి చెప్పిన కామిక్స్." },
 };
 const LI = { en: 1, hi: 2, te: 3 };
 let lang = store.get("lang", (navigator.language || "en").startsWith("te") ? "te" : (navigator.language || "").startsWith("hi") ? "hi" : "en");
@@ -270,7 +272,7 @@ function setLang(l) {
   document.documentElement.lang = l; document.body.className = "lang-" + l;
   document.querySelectorAll(".langs button").forEach(b => b.classList.toggle("on", b.dataset.l === l));
   $("#q").placeholder = T("search");
-  render(); if (book) layoutBook(store.get("bookpos", {})[book.id + lang] || 0); if (cur) { stopSpeech(); showPanel(idx, 0); buildStrip(); $("#rt").textContent = cur.t[lang]; }
+  render(); if (cur) { stopSpeech(); showPanel(idx, 0); buildStrip(); $("#rt").textContent = cur.t[lang]; }
 }
 
 // ---------- library ----------
@@ -296,15 +298,6 @@ const B = k => BUI[lang][k];
 function renderTabs() {
   $("#tabs").innerHTML = `<button data-shelf="comics" class="${shelf === "comics" ? "on" : ""}"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="8" height="8" rx="1"/><rect x="13" y="3" width="8" height="8" rx="1"/><rect x="3" y="13" width="18" height="8" rx="1"/></svg>${B("comics")}</button><button data-shelf="books" class="${shelf === "books" ? "on" : ""}"><svg viewBox="0 0 24 24"><path d="M4 4h6a3 3 0 0 1 3 3v13a2 2 0 0 0-2-2H4zM20 4h-6a3 3 0 0 0-3 3v13a2 2 0 0 1 2-2h7z"/></svg>${B("books")}</button>`;
 }
-function renderBooks() {
-  $("#chips").innerHTML = "";
-  const pos = store.get("bookpos", {});
-  const list = BOOKS.filter(b => !query || (Object.values(b.t).join(" ") + b.ch.map(c => Object.values(c.t).join(" ")).join(" ")).toLowerCase().includes(query.toLowerCase()));
-  $("#lists").innerHTML = `<h2 class="sec">${B("shelfT")}</h2><div class="books">${list.map((b, i) => `<div class="book" data-book="${b.id}" style="animation-delay:${i * .06}s">
-    <div class="cv">${renderScene(b.cover)}<span class="orn"></span><div class="lbl"><small>${b.by[lang]}</small><b class="lang-${lang}">${b.t[lang]}</b></div></div>
-    <div class="meta"><span>${b.ch.length} ${B("chapters")}</span><span>${Math.round((pos[b.id + lang] || 0) * 100)}%</span></div>
-    <div class="bar"><i style="width:${Math.round((pos[b.id + lang] || 0) * 100)}%"></i></div></div>`).join("")}</div>`;
-}
 function render() {
   renderTabs();
   if (shelf === "books") { renderHero(); return renderBooks(); }
@@ -323,7 +316,7 @@ function render() {
 function renderHero() {
   const f = STORIES[Math.floor(Date.now() / 864e5) % STORIES.length];
   $("#hero").innerHTML = `<div class="art">${renderScene(f.p[0][0])}</div><div class="txt"><span class="stamp">${T("feat")}</span><h1>${f.t[lang]}</h1><p>${T("hero")}</p>
-  <div class="row"><button class="btn pri" data-open="${f.id}" data-listen="1"><svg viewBox="0 0 24 24"><path d="M7 4l13 8-13 8z"/></svg>${T("listen")}</button><button class="btn" data-open="${f.id}">${T("read")}</button></div></div>`;
+  <div class="row"><button class="btn pri" data-open="${f.id}">${T("read")}</button></div></div>`;
 }
 document.addEventListener("click", e => {
   const fav = e.target.closest("[data-fav]");
@@ -339,7 +332,7 @@ $("#sBtn").onclick = () => { $("#search").classList.toggle("open"); if ($("#sear
 $("#q").oninput = e => { query = e.target.value.trim(); render(); };
 
 // ---------- reader ----------
-let cur = null, idx = 0, playing = false, autoAdv = store.get("auto", true), rate = store.get("rate", 1);
+let cur = null, idx = 0;
 function openStory(id, listen) {
   cur = STORIES.find(s => s.id === id); if (!cur) return;
   idx = progress[id] && progress[id] < cur.p.length - 1 ? progress[id] : 0;
@@ -349,7 +342,6 @@ function openStory(id, listen) {
   $("#dots").innerHTML = cur.p.map(() => "<i></i>").join("");
   showPanel(idx, 0); buildStrip();
   history.pushState({ r: 1 }, "");
-  if (listen) setTimeout(() => togglePlay(true), 400);
 }
 function closeReader() { stopSpeech(); $("#reader").classList.remove("open"); document.body.style.overflow = ""; cur = null; render(); }
 function capHTML(text) { return text.split(/(\s+)/).map((w, i) => /\s/.test(w) ? w : `<span class="w">${w}</span>`).join(""); }
@@ -364,66 +356,16 @@ function showPanel(i, dir) {
 }
 function buildStrip() { if (!cur) return; $("#strip").innerHTML = cur.p.map((_, i) => `<div class="panel">${panelHTML(i)}</div>`).join("") + `<div class="end"><b>${T("end")}</b></div>`; }
 $("#close").onclick = () => history.back();
-window.onpopstate = () => { if (book) closeBook(); else if (cur) closeReader(); };
+window.onpopstate = () => { if (bk) closeBook(); else if (cur) closeReader(); };
 $("#prev").onclick = () => { stopSpeech(); showPanel(idx - 1, -1); };
 $("#next").onclick = () => { stopSpeech(); showPanel(idx + 1, 1); };
 $("#mode").onclick = () => { stopSpeech(); $("#reader").classList.toggle("stripmode"); };
-$("#auto").onclick = () => { autoAdv = !autoAdv; store.set("auto", autoAdv); $("#auto").classList.toggle("on", autoAdv); toast(autoAdv ? "Auto-play on" : "Auto-play off"); };
-$("#auto").classList.toggle("on", autoAdv);
-const RATES = [.8, 1, 1.2, 1.4];
-$("#speed").textContent = rate + "×";
-$("#speed").onclick = () => { rate = RATES[(RATES.indexOf(rate) + 1) % RATES.length]; store.set("rate", rate); $("#speed").textContent = rate + "×"; };
-$("#play").onclick = () => togglePlay();
+
 let sx = 0; $("#stage").addEventListener("touchstart", e => sx = e.touches[0].clientX, { passive: true });
 $("#stage").addEventListener("touchend", e => { const d = e.changedTouches[0].clientX - sx; if (Math.abs(d) > 50) (d < 0 ? $("#next") : $("#prev")).click(); });
-document.addEventListener("keydown", e => { if (!cur) return; if (e.key === "ArrowRight") $("#next").click(); if (e.key === "ArrowLeft") $("#prev").click(); if (e.key === " ") { e.preventDefault(); togglePlay(); } if (e.key === "Escape") history.back(); });
+document.addEventListener("keydown", e => { if (!cur) return; if (e.key === "ArrowRight") $("#next").click(); if (e.key === "ArrowLeft") $("#prev").click(); if (e.key === " ") { e.preventDefault(); $("#next").click(); } if (e.key === "Escape") history.back(); });
 
-// ---------- narration ----------
-const VOICE_LANG = { en: ["en-IN", "en-GB", "en"], hi: ["hi-IN", "hi"], te: ["te-IN", "te"] };
-let voices = [], AUDIO = {}, player = null;
-for (const l of ["en", "hi", "te"]) fetch(`audio/${l}/index.json`, { cache: "no-store" }).then(r => r.ok ? r.json() : {}).then(j => AUDIO[l] = j).catch(() => {});
-function loadVoices() { try { voices = speechSynthesis.getVoices(); } catch { voices = []; } }
-if (window.speechSynthesis) { loadVoices(); speechSynthesis.onvoiceschanged = loadVoices; }
-function pickVoice(l) { for (const code of VOICE_LANG[l]) { const v = voices.find(v => v.lang.replace("_", "-").toLowerCase().startsWith(code.toLowerCase())); if (v) return v; } return null; }
-function setPlayIcon() { $("#playIco").innerHTML = playing ? '<path d="M6 4h4v16H6zM14 4h4v16h-4z"/>' : '<path d="M7 4l13 8-13 8z"/>'; }
-function togglePlay(force) { playing = force === undefined ? !playing : force; setPlayIcon(); playing ? speakPanel() : stopSpeech(true); }
-function stopSpeech(keepFlag) {
-  if (!keepFlag) { playing = false; setPlayIcon(); }
-  if (player) { player.onended = null; player.pause(); player = null; }
-  try { window.KathaAndroid ? KathaAndroid.stop() : speechSynthesis.cancel(); } catch {}
-  document.querySelectorAll(".cap").forEach(c => c.classList.remove("speaking"));
-}
-function afterPanel() {
-  if (!playing) return;
-  if (autoAdv && idx < cur.p.length - 1) { showPanel(idx + 1, 1); setTimeout(speakPanel, 700); }
-  else { playing = false; setPlayIcon(); document.querySelectorAll(".cap").forEach(c => c.classList.remove("speaking")); }
-}
-window.__ttsDone = () => afterPanel();
-function speakPanel() {
-  if (!cur) return;
-  const text = cur.p[idx][LI[lang]], cap = $("#stage .cap"); cap && cap.classList.add("speaking");
-  const words = cap ? [...cap.querySelectorAll(".w")] : [];
-  // Recorded narration (natural voice) when available, the device voice otherwise.
-  const key = `${cur.id}-${idx}`;
-  if (AUDIO[lang] && AUDIO[lang][key]) {
-    player = new Audio(`audio/${lang}/${key}.mp3?v=${AUDIO[lang][key]}`);
-    player.playbackRate = rate; player.preservesPitch = true;
-    player.ontimeupdate = () => { if (!player || !player.duration) return; const k = Math.floor(player.currentTime / player.duration * words.length); words.forEach((w, i) => w.classList.toggle("hl", i === k)); };
-    player.onended = () => { words.forEach(w => w.classList.remove("hl")); player = null; afterPanel(); };
-    player.play().catch(() => { player = null; playing = false; setPlayIcon(); });
-    return;
-  }
-  if (window.KathaAndroid) { KathaAndroid.speak(text, lang, rate); return; }
-  if (!window.speechSynthesis) { toast(T("novoice")); playing = false; setPlayIcon(); return; }
-  const u = new SpeechSynthesisUtterance(text), v = pickVoice(lang);
-  if (!v && lang !== "en") toast(T("novoice"));
-  if (v) u.voice = v; u.lang = VOICE_LANG[lang][0]; u.rate = rate; u.pitch = 1.02;
-  // highlight the word being spoken
-  const starts = []; let p = 0; words.forEach(w => { starts.push(text.indexOf(w.textContent, p)); p = starts[starts.length - 1] + w.textContent.length; });
-  u.onboundary = e => { let k = starts.findIndex((s, i) => e.charIndex >= s && (i === starts.length - 1 || e.charIndex < starts[i + 1])); words.forEach((w, i) => w.classList.toggle("hl", i === k)); };
-  u.onend = () => { words.forEach(w => w.classList.remove("hl")); afterPanel(); };
-  speechSynthesis.cancel(); speechSynthesis.speak(u);
-}
+function stopSpeech() {}
 
 // ---------- settings & updates ----------
 function toast(msg, action, fn) {
@@ -453,10 +395,8 @@ async function checkUpdates(manual) {
   } catch { if (manual) toast("Offline — try again later"); }
 }
 $("#setBtn").onclick = () => {
-  const hasV = l => !!(window.KathaAndroid || pickVoice(l));
   $("#sheetBox").innerHTML = `<h3>${T("settings")}</h3>
   <div class="it"><span>${T("version")}<small>Katha ${APP_VERSION} · ${PLATFORM === "android" ? "Android" : "Web"}</small></span><button class="btn pri" id="chk">${T("check")}</button></div>
-  <div class="it"><span>${T("voice")}<small>English ${hasV("en") ? "✓" : "—"} · हिंदी ${hasV("hi") ? "✓" : "—"} · తెలుగు ${hasV("te") ? "✓" : "—"}</small></span></div>
   ${PLATFORM === "web" ? `<div class="it"><span>Android<small>Get the Katha app</small></span><a class="btn" href="https://github.com/${REPO}/releases/latest/download/Katha.apk">APK</a></div>` : ""}
   <div class="it" style="border:0"><span><small>${T("about")}</small></span></div>`;
   $("#sheet").classList.add("open");
@@ -464,60 +404,127 @@ $("#setBtn").onclick = () => {
 };
 $("#sheet").onclick = e => { if (e.target.id === "sheet") $("#sheet").classList.remove("open"); };
 
-// ---------- e-reader (Kindle-style) ----------
-let book = null, page = 0, pages = 1, er = store.get("er", { fs: 19, theme: "paper", font: "serif" });
+// ---------- library + e-reader (Kindle-style) ----------
+let bk = null, sec = 0, page = 0, pages = 1, er = store.get("er", { fs: 19, theme: "paper", font: "serif" });
+let CATALOG = null, libLang = store.get("libLang", "all"), libGenre = "all", libShown = 60;
 const FONTS = { serif: { en: '"Noto Serif",Georgia,serif', hi: '"Noto Serif Devanagari","Noto Serif",serif', te: '"Noto Serif Telugu","Noto Serif",serif' },
                 sans: { en: '"Space Grotesk",system-ui,sans-serif', hi: '"Noto Sans Devanagari",sans-serif', te: '"Noto Sans Telugu",sans-serif' } };
-const esc = t => t.replace(/[&<>]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c]));
+const LIBUI = { en: { lib: "Library", orig: "Katha originals", all: "All", more: "Show more", books: "books", loading: "Opening book…", cont: "Continue reading", none: "No books match.", offline: "Couldn't open this book. Check your connection." },
+  hi: { lib: "पुस्तकालय", orig: "कथा की अपनी पुस्तकें", all: "सभी", more: "और दिखाएँ", books: "पुस्तकें", loading: "पुस्तक खुल रही है…", cont: "पढ़ना जारी रखें", none: "कोई पुस्तक नहीं मिली।", offline: "पुस्तक नहीं खुल सकी। इंटरनेट जाँचें।" },
+  te: { lib: "గ్రంథాలయం", orig: "కథ ప్రత్యేక పుస్తకాలు", all: "అన్నీ", more: "మరిన్ని చూపించు", books: "పుస్తకాలు", loading: "పుస్తకం తెరుస్తోంది…", cont: "చదవడం కొనసాగించండి", none: "ఏ పుస్తకమూ దొరకలేదు.", offline: "పుస్తకం తెరవలేకపోయాం. ఇంటర్నెట్ చూడండి." } };
+const L = k => LIBUI[lang][k];
+const LIB_BASE = PLATFORM === "android" ? "https://bubbles.foo.ng/Katha/books/" : "../books/";
+const esc = t => String(t).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+function loadCatalog() {
+  if (CATALOG) return Promise.resolve(CATALOG);
+  return fetch(LIB_BASE + "catalog.json").then(r => r.json()).then(j => (CATALOG = j)).catch(() => (CATALOG = []));
+}
+const hueOf = s => { let h = 0; for (const c of String(s)) h = (h * 31 + c.charCodeAt(0)) % 360; return h; };
+function libCover(b) {
+  const h = hueOf(b.id + b.t);
+  return `<div class="cv lib" style="--h:${h}"><span class="orn"></span><div class="lt lang-${b.l}">${esc(b.t)}</div><div class="la">${esc(b.a || "")}</div><span class="lg">${{ en: "EN", hi: "हिं", te: "తె" }[b.l]}</span></div>`;
+}
+function renderBooks() {
+  const pos = store.get("bookpos", {}), q = query.toLowerCase();
+  const orig = BOOKS.filter(b => !q || (Object.values(b.t).join(" ") + b.ch.map(c => Object.values(c.t).join(" ")).join(" ")).toLowerCase().includes(q));
+  let html = "";
+  const recent = store.get("recent", []).map(id => (CATALOG || []).find(b => b.id === id)).filter(Boolean).slice(0, 6);
+  if (!q && recent.length) html += `<h2 class="sec">${L("cont")}</h2><div class="books">${recent.map(b => `<div class="book" data-lib="${b.id}">${libCover(b)}<div class="bar"><i style="width:${Math.round((pos["lib-" + b.id]?.p || 0) * 100)}%"></i></div></div>`).join("")}</div>`;
+  if (orig.length) html += `<h2 class="sec">${L("orig")}</h2><div class="books">${orig.map((b, i) => `<div class="book" data-book="${b.id}" style="animation-delay:${i * .06}s">
+    <div class="cv">${renderScene(b.cover)}<span class="orn"></span><div class="lbl"><small>${b.by[lang]}</small><b class="lang-${lang}">${b.t[lang]}</b></div></div>
+    <div class="meta"><span>${b.ch.length} ${B("chapters")}</span><span>${Math.round(((pos[b.id + lang] || {}).p || 0) * 100)}%</span></div></div>`).join("")}</div>`;
+  if (!CATALOG) { $("#lists").innerHTML = html + `<p class="empty">${L("loading")}</p>`; loadCatalog().then(() => shelf === "books" && renderBooks()); return; }
+  const genres = [...new Set(CATALOG.map(b => b.g))].sort();
+  $("#chips").innerHTML = [["all", L("all")], ["en", "English"], ["hi", "हिंदी"], ["te", "తెలుగు"]].map(([k, n]) => `<button class="chip ${libLang === k ? "on" : ""}" data-libl="${k}">${n}</button>`).join("") +
+    `<span style="width:10px;flex:none"></span>` + [["all", "★"], ...genres.map(g => [g, g])].map(([k, n]) => `<button class="chip ${libGenre === k ? "on" : ""}" data-libg="${esc(k)}">${esc(n)}</button>`).join("");
+  const list = CATALOG.filter(b => (libLang === "all" || b.l === libLang) && (libGenre === "all" || b.g === libGenre) && (!q || (b.t + " " + b.a).toLowerCase().includes(q)));
+  html += `<h2 class="sec">${L("lib")} · ${list.length} ${L("books")}</h2>`;
+  html += list.length ? `<div class="books">${list.slice(0, libShown).map((b, i) => `<div class="book" data-lib="${b.id}" style="animation-delay:${Math.min(i, 20) * .03}s">${libCover(b)}<div class="meta"><span>${esc(b.g)}</span><span>${Math.round((pos["lib-" + b.id]?.p || 0) * 100)}%</span></div></div>`).join("")}</div>` +
+    (list.length > libShown ? `<div style="text-align:center;margin:26px 0"><button class="btn" data-libmore="1">${L("more")}</button></div>` : "") : `<p class="empty">${L("none")}</p>`;
+  $("#lists").innerHTML = html;
+}
+document.addEventListener("click", e => {
+  const a = e.target.closest("[data-libl]"); if (a) { libLang = a.dataset.libl; store.set("libLang", libLang); libShown = 60; renderBooks(); return; }
+  const g = e.target.closest("[data-libg]"); if (g) { libGenre = g.dataset.libg; libShown = 60; renderBooks(); return; }
+  if (e.target.closest("[data-libmore]")) { libShown += 60; renderBooks(); return; }
+  const l = e.target.closest("[data-lib]"); if (l) openLib(l.dataset.lib);
+});
+
+// Book → sections of HTML (keeps each page layout light, even for long novels)
+const HEAD = /^(chapter|book|part|act|canto|section|letter|prologue|epilogue|preface|introduction|अध्याय|भाग|అధ్యాయము|అధ్యాయం|భాగము)\b|^[ivxlc]+\.?$|^[0-9]{1,3}\.?$/i;
+function textToBook(text) {
+  const paras = text.replace(/\r/g, "").split(/\n\s*\n/).map(p => p.replace(/\s*\n\s*/g, " ").trim()).filter(Boolean);
+  const sections = [], toc = []; let cur = "", len = 0;
+  const flush = () => { if (cur) { sections.push(cur); cur = ""; len = 0; } };
+  for (const p of paras) {
+    const isHead = p.length < 70 && (HEAD.test(p) || (p === p.toUpperCase() && /[A-Z]/.test(p) && p.length < 50));
+    if (isHead) { if (len > 3500) flush(); toc.push({ t: p, s: sections.length }); cur += `<h2>${esc(p)}</h2>`; continue; }
+    cur += `<p>${esc(p)}</p>`; len += p.length;
+    if (len > 16000) flush();
+  }
+  flush();
+  return { sections: sections.length ? sections : ["<p></p>"], toc };
+}
+async function openLib(id) {
+  await loadCatalog();
+  const meta = CATALOG.find(b => b.id === id); if (!meta) return;
+  toast(L("loading"));
+  try {
+    const text = await fetch(LIB_BASE + id + ".txt").then(r => { if (!r.ok) throw 0; return r.text(); });
+    const { sections, toc } = textToBook(text);
+    sections[0] = `<h1>${esc(meta.t)}</h1><div class="by">${esc(meta.a || "")}</div><div class="orn">✦ ✦ ✦</div>` + sections[0];
+    bk = { key: "lib-" + id, title: meta.t, lang: meta.l, sections, toc, orig: false };
+    const rec = store.get("recent", []).filter(x => x !== id); rec.unshift(id); store.set("recent", rec.slice(0, 12));
+    startReader();
+  } catch { toast(L("offline")); }
+}
 function openBook(id) {
-  book = BOOKS.find(b => b.id === id); if (!book) return;
+  const b = BOOKS.find(x => x.id === id); if (!b) return;
+  const sections = b.ch.map((c, i) => `${i === 0 ? `<h1>${esc(b.t[lang])}</h1><div class="by">${esc(b.by[lang])}</div><div class="orn">✦ ✦ ✦</div>` : ""}<h2><small>${i + 1}</small>${esc(c.t[lang])}</h2>` + c.x[lang].split(/\n\n/).map(p => `<p>${esc(p)}</p>`).join(""));
+  sections.push(`<div class="fin">— ${B("fin")} —</div>`);
+  bk = { key: b.id + lang, id: b.id, title: b.t[lang], lang, sections, toc: b.ch.map((c, i) => ({ t: c.t[lang], s: i })), orig: true };
+  startReader();
+}
+function startReader() {
+  $("#toast").classList.remove("show");
   $("#er").classList.add("open"); document.body.style.overflow = "hidden";
-  history.pushState({ b: 1 }, ""); layoutBook(store.get("bookpos", {})[book.id + lang] || 0);
+  history.pushState({ b: 1 }, "");
+  const p = store.get("bookpos", {})[bk.key] || { s: 0, f: 0 };
+  sec = Math.min(p.s || 0, bk.sections.length - 1); layout(p.f || 0);
 }
-function closeBook() { $("#er").classList.remove("open", "calm"); document.body.style.overflow = ""; book = null; $("#erPop").classList.remove("open"); $("#erTocBox").classList.remove("open"); render(); }
-function layoutBook(frac) {
+function closeBook() { $("#er").classList.remove("open", "calm"); document.body.style.overflow = ""; bk = null; $("#erPop").classList.remove("open"); $("#erTocBox").classList.remove("open"); render(); }
+function layout(frac, toEnd) {
   const v = $("#erView"), fl = $("#erFlow"), gap = 48;
-  const er_ = $("#er"); er_.dataset.theme = er.theme === "paper" ? "" : er.theme;
-  fl.style.setProperty("--fs", er.fs + "px"); fl.style.setProperty("--ff", FONTS[er.font][lang]);
-  $("#er").style.setProperty("--ff", FONTS[er.font][lang]);
+  $("#er").dataset.theme = er.theme === "paper" ? "" : er.theme;
+  fl.style.setProperty("--fs", er.fs + "px"); fl.style.setProperty("--ff", FONTS[er.font][bk.lang]); $("#er").style.setProperty("--ff", FONTS[er.font][bk.lang]);
   const W = v.clientWidth - 48, H = v.clientHeight - 16;
-  fl.style.left = "24px"; fl.style.top = "8px"; fl.style.height = H + "px"; fl.style.width = W + "px";
-  fl.style.columnWidth = W + "px"; fl.style.columnGap = gap + "px";
-  fl.innerHTML = `<h1>${esc(book.t[lang])}</h1><div class="by">${esc(book.by[lang])}</div><div class="orn">✦ ✦ ✦</div>` +
-    book.ch.map((c, i) => `<h2 data-ch="${i}"><small>${i + 1}</small>${esc(c.t[lang])}</h2>` + c.x[lang].split(/\n\n/).map(p => `<p>${esc(p)}</p>`).join("")).join("") +
-    `<div class="fin">— ${B("fin")} —</div>`;
-  fl.className = "er-flow lang-" + lang;
-  requestAnimationFrame(() => {
-    pages = Math.max(1, Math.round((fl.scrollWidth + gap) / (W + gap)));
-    $("#erRange").max = pages - 1;
-    goPage(Math.round(frac * (pages - 1)), true);
-  });
-  $("#erT").textContent = book.t[lang];
-}
-function chapterAt(p) {
-  const fl = $("#erFlow"), W = fl.clientWidth + 48; let cur = -1;
-  fl.querySelectorAll("h2").forEach(h => { if (Math.floor(h.offsetLeft / W) <= p) cur = +h.dataset.ch; });
-  return cur;
+  Object.assign(fl.style, { left: "24px", top: "8px", height: H + "px", width: W + "px", columnWidth: W + "px", columnGap: gap + "px" });
+  fl.className = "er-flow lang-" + bk.lang; fl.innerHTML = bk.sections[sec];
+  $("#erT").textContent = bk.title;
+  $("#erRange").max = bk.sections.length - 1; $("#erRange").value = sec;
+  requestAnimationFrame(() => { pages = Math.max(1, Math.round((fl.scrollWidth + gap) / (W + gap))); goPage(toEnd ? pages - 1 : Math.round((frac || 0) * (pages - 1)), true); });
 }
 function goPage(p, instant) {
+  if (p < 0 && sec > 0) { sec--; return layout(0, true); }
+  if (p >= pages && sec < bk.sections.length - 1) { sec++; return layout(0); }
   page = Math.max(0, Math.min(pages - 1, p));
   const fl = $("#erFlow"), W = fl.clientWidth + 48;
   fl.style.transition = instant ? "none" : ""; fl.style.transform = `translateX(${-page * W}px)`;
-  $("#erRange").value = page;
-  const c = chapterAt(page);
-  $("#erCh").textContent = c >= 0 ? book.ch[c].t[lang] : book.t[lang];
-  $("#erPg").textContent = `${B("page")} ${page + 1} ${B("of")} ${pages} · ${Math.round(page / Math.max(1, pages - 1) * 100)}%`;
-  const pos = store.get("bookpos", {}); pos[book.id + lang] = pages > 1 ? page / (pages - 1) : 0; store.set("bookpos", pos);
+  const f = pages > 1 ? page / (pages - 1) : 0, total = (sec + f) / Math.max(1, bk.sections.length - (bk.sections.length > 1 ? 1 : 0));
+  const ch = [...bk.toc].reverse().find(c => c.s <= sec);
+  $("#erCh").textContent = ch ? ch.t : bk.title;
+  $("#erPg").textContent = `${Math.min(100, Math.round(total * 100))}%`;
+  const pos = store.get("bookpos", {}); pos[bk.key] = { s: sec, f, p: Math.min(1, total) }; store.set("bookpos", pos);
 }
 $("#erL").onclick = () => goPage(page - 1);
 $("#erR").onclick = () => goPage(page + 1);
 $("#erC").onclick = () => { $("#er").classList.toggle("calm"); $("#erPop").classList.remove("open"); };
-$("#erRange").oninput = e => goPage(+e.target.value);
+$("#erRange").oninput = e => { sec = +e.target.value; layout(0); };
 $("#erClose").onclick = () => history.back();
 let ex = 0; $("#erView").addEventListener("touchstart", e => ex = e.touches[0].clientX, { passive: true });
 $("#erView").addEventListener("touchend", e => { const d = e.changedTouches[0].clientX - ex; if (Math.abs(d) > 40) goPage(page + (d < 0 ? 1 : -1)); });
-document.addEventListener("keydown", e => { if (!book) return; if (e.key === "ArrowRight" || e.key === " ") { e.preventDefault(); goPage(page + 1); } if (e.key === "ArrowLeft") goPage(page - 1); if (e.key === "Escape") history.back(); });
-window.addEventListener("resize", () => { if (book) layoutBook(page / Math.max(1, pages - 1)); });
+document.addEventListener("keydown", e => { if (!bk) return; if (e.key === "ArrowRight" || e.key === " ") { e.preventDefault(); goPage(page + 1); } if (e.key === "ArrowLeft") goPage(page - 1); if (e.key === "Escape") history.back(); });
+window.addEventListener("resize", () => { if (bk) layout(page / Math.max(1, pages - 1)); });
 function drawPop() {
   const th = [["paper", "#f6efe1"], ["white", "#ffffff"], ["sepia", "#f4e6c8"], ["night", "#121014"]];
   $("#erPop").innerHTML = `<div style="font-size:12px;color:var(--mut);margin-bottom:6px">${B("size")}</div>
@@ -525,8 +532,8 @@ function drawPop() {
   <div style="font-size:12px;color:var(--mut);margin-bottom:6px">${B("theme")}</div>
   <div class="r">${th.map(([k, c]) => `<button class="sw ${er.theme === k ? "on" : ""}" data-th="${k}" style="background:${c}"></button>`).join("")}</div>
   <div style="font-size:12px;color:var(--mut);margin-bottom:6px">${B("font")}</div>
-  <div class="r"><button data-ff="serif" class="${er.font === "serif" ? "on" : ""}" style="font-family:Georgia,serif">Serif</button><button data-ff="sans" class="${er.font === "sans" ? "on" : ""}">Sans</button></div>
-  <div class="r" style="margin:0">${["en", "hi", "te"].map(l => `<button data-bl="${l}" class="${lang === l ? "on" : ""} lang-${l}">${{ en: "EN", hi: "हिं", te: "తె" }[l]}</button>`).join("")}</div>`;
+  <div class="r" ${bk.orig ? "" : 'style="margin:0"'}><button data-ff="serif" class="${er.font === "serif" ? "on" : ""}" style="font-family:Georgia,serif">Serif</button><button data-ff="sans" class="${er.font === "sans" ? "on" : ""}">Sans</button></div>
+  ${bk.orig ? `<div class="r" style="margin:0">${["en", "hi", "te"].map(l => `<button data-bl="${l}" class="${lang === l ? "on" : ""} lang-${l}">${{ en: "EN", hi: "हिं", te: "తె" }[l]}</button>`).join("")}</div>` : ""}`;
 }
 $("#erAa").onclick = () => { drawPop(); $("#erPop").classList.toggle("open"); };
 $("#erPop").onclick = e => {
@@ -535,21 +542,22 @@ $("#erPop").onclick = e => {
   if (b.dataset.fs) er.fs = Math.max(14, Math.min(30, er.fs + +b.dataset.fs * 2));
   if (b.dataset.th) er.theme = b.dataset.th;
   if (b.dataset.ff) er.font = b.dataset.ff;
-  if (b.dataset.bl) { lang = b.dataset.bl; store.set("lang", lang); document.querySelectorAll("#langs button").forEach(x => x.classList.toggle("on", x.dataset.l === lang)); }
-  store.set("er", er); drawPop();
-  layoutBook(b.dataset.bl ? (store.get("bookpos", {})[book.id + lang] || 0) : frac);
+  store.set("er", er);
+  if (b.dataset.bl) { lang = b.dataset.bl; store.set("lang", lang); document.querySelectorAll("#langs button").forEach(x => x.classList.toggle("on", x.dataset.l === lang)); const s = sec; openBookSilently(bk.id, s); drawPop(); return; }
+  drawPop(); layout(frac);
 };
+function openBookSilently(id, s) { const keep = sec; openBook.call(null, id); history.back(); sec = Math.min(s ?? keep, bk.sections.length - 1); layout(0); }
 $("#erToc").onclick = () => {
-  const cur = chapterAt(page);
   $("#erTocBox").innerHTML = `<div style="display:flex;align-items:center;gap:10px"><button class="ib" id="tocX" aria-label="Close" style="border-bottom:0;padding:0;justify-content:center"><svg viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg></button><h3 style="margin:0">${B("contents")}</h3></div><div style="height:12px"></div>` +
-    book.ch.map((c, i) => `<button data-go="${i}" class="${i === cur ? "cur" : ""}"><span>${i + 1}</span>${esc(c.t[lang])}</button>`).join("");
+    (bk.toc.length ? bk.toc : bk.sections.map((_, i) => ({ t: `${B("page")} ${i + 1}`, s: i }))).map((c, i) => `<button data-go="${c.s}" class="${c.s === sec ? "cur" : ""}"><span>${i + 1}</span>${esc(c.t)}</button>`).join("");
   $("#erTocBox").classList.add("open");
 };
 $("#erTocBox").onclick = e => {
   if (e.target.closest("#tocX")) { $("#erTocBox").classList.remove("open"); return; }
   const g = e.target.closest("[data-go]"); if (!g) return;
-  const h = $("#erFlow").querySelector(`h2[data-ch="${g.dataset.go}"]`), W = $("#erFlow").clientWidth + 48;
-  goPage(Math.floor(h.offsetLeft / W)); $("#erTocBox").classList.remove("open");
+  sec = +g.dataset.go; layout(0); $("#erTocBox").classList.remove("open");
+  const h = [...$("#erFlow").querySelectorAll("h2")].find(x => x.textContent.trim() === g.textContent.replace(/^\d+/, "").trim());
+  if (h) requestAnimationFrame(() => goPage(Math.floor(h.offsetLeft / ($("#erFlow").clientWidth + 48))));
 };
 
 setLang(lang);
