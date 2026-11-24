@@ -191,6 +191,13 @@ body.libmode .chip.on{background:#f3e7d3;color:#2a1d12;box-shadow:none;border-co
 .detail .go{display:inline-flex;padding:12px 20px;border-radius:12px;background:#2a1d12;color:#f3e7d3;font-weight:700;border:0;cursor:pointer;text-decoration:none}
 .detail .x{float:right;font-size:22px;color:#7a6248}
 @media(max-width:600px){.detail .box{grid-template-columns:1fr;justify-items:center;text-align:center}.detail .facts{justify-content:center}}
+.wv{position:fixed;inset:0;z-index:75;display:none;flex-direction:column;background:#f3e7d3}
+.wv.open{display:flex;animation:fade .25s}
+.wvbar{display:flex;align-items:center;gap:12px;padding:calc(8px + env(safe-area-inset-top)) 14px 8px;background:#2a1d12;color:#f3e7d3}
+.wvbar b{flex:1;font-family:"Noto Serif","Noto Serif Telugu","Noto Serif Devanagari",Georgia,serif;font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wvbar a{color:#e0a96d;font-size:13px;white-space:nowrap}
+.wvbar .ib{color:#f3e7d3;border-color:#ffffff30}
+.wv iframe{flex:1;width:100%;border:0;background:#fff}
 /* reader: real paper */
 .er{background-image:radial-gradient(#0000000a 1px,transparent 1.2px),linear-gradient(90deg,#0000000f,transparent 3%,transparent 97%,#0000000f);background-size:4px 4px,100% 100%}
 .er[data-theme=night]{background-image:none}
@@ -295,6 +302,7 @@ body.libmode .chip.on{background:#f3e7d3;color:#2a1d12;box-shadow:none;border-co
   <div class="erpop" id="erPop"></div>
   <div class="toc" id="erTocBox"></div>
 </div>
+<div class="wv" id="wv"><div class="wvbar"><button class="ib" id="wvX" aria-label="Back"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></button><b id="wvT"></b><a id="wvO" target="_blank" rel="noopener">Open in browser ↗</a></div><iframe id="wvF" title="Reader" allow="fullscreen" referrerpolicy="no-referrer-when-downgrade"></iframe></div>
 <div class="detail" id="detail"><div class="box" id="detailBox"></div></div>
 <div class="sheet" id="sheet"><div class="box" id="sheetBox"></div></div>
 <div class="toast" id="toast"></div>
@@ -409,7 +417,7 @@ function showPanel(i, dir) {
 }
 function buildStrip() { if (!cur) return; $("#strip").innerHTML = cur.p.map((_, i) => `<div class="panel">${panelHTML(i)}</div>`).join("") + `<div class="end"><b>${T("end")}</b></div>`; }
 $("#close").onclick = () => history.back();
-window.onpopstate = () => { if (bk) closeBook(); else if (cur) closeReader(); };
+window.onpopstate = () => { if ($("#wv").classList.contains("open")) closeWeb(); else if (bk) closeBook(); else if (cur) closeReader(); };
 $("#prev").onclick = () => { stopSpeech(); showPanel(idx - 1, -1); };
 $("#next").onclick = () => { stopSpeech(); showPanel(idx + 1, 1); };
 $("#mode").onclick = () => { stopSpeech(); $("#reader").classList.toggle("stripmode"); };
@@ -489,7 +497,7 @@ function bkCard(b, pos) {
 }
 function studyCard(x) {
   const h = hueOf(x[0]);
-  return `<a class="bk" href="${x[2]}" target="_blank" rel="noopener"><div class="cov"><span class="ext">FREE ↗</span><div class="gen" style="--h:${h}"><b>${esc(x[0])}</b><i>${esc(x[1])}</i></div></div><div class="t">${esc(x[0])}</div><div class="a">${esc(x[1])}</div></a>`;
+  return `<a class="bk" href="${x[2]}" data-web="${x[2]}" data-wt="${esc(x[0])}"><div class="cov"><span class="ext">FREE</span><div class="gen" style="--h:${h}"><b>${esc(x[0])}</b><i>${esc(x[1])}</i></div></div><div class="t">${esc(x[0])}</div><div class="a">${esc(x[1])}</div></a>`;
 }
 function renderBooks() {
   document.body.classList.add("libmode");
@@ -519,6 +527,14 @@ function renderBooks() {
   if (!pool.length && q) html += `<p class="empty">${L("none")}</p>`;
   $("#lists").innerHTML = html;
 }
+function openWeb(url, title) {
+  $("#detail").classList.remove("open");
+  if (window.KathaAndroid && KathaAndroid.openInApp) { KathaAndroid.openInApp(url, title || ""); return; }
+  $("#wvT").textContent = title || ""; $("#wvO").href = url; $("#wvF").src = url;
+  $("#wv").classList.add("open"); document.body.style.overflow = "hidden"; history.pushState({ w: 1 }, "");
+}
+function closeWeb() { $("#wv").classList.remove("open"); $("#wvF").src = "about:blank"; document.body.style.overflow = ""; }
+$("#wvX").onclick = () => history.back();
 const shelf_is_books = () => store.get("shelf", "comics") === "books";
 function showDetail(id) {
   const b = CATALOG.find(x => x.id === id); if (!b) return;
@@ -526,12 +542,13 @@ function showDetail(id) {
   $("#detailBox").innerHTML = `<div class="bk" style="cursor:default"><div class="cov">${bkCard(b, {}).match(/<div class="cov">([\s\S]*?)<\/div>\s*<div class="t/)[1]}</div></div>
    <div><span class="x" data-close="1" style="cursor:pointer">×</span><h2 class="lang-${b.l}">${esc(b.t)}</h2><div class="by">${esc(b.a || "")}</div>
    <div class="facts"><span>${esc(b.g)}</span><span>${{ en: "English", hi: "हिंदी", te: "తెలుగు" }[b.l]}</span><span>~${mins >= 120 ? Math.round(mins / 60) + " h" : mins + " min"} read</span><span>${b.sw ? "StoryWeaver · CC BY 4.0" : "Full book · free"}</span></div>
-   ${b.sw ? `<a class="go" href="https://storyweaver.org.in/en/stories/${b.sw}" target="_blank" rel="noopener" data-ext="1">Read on StoryWeaver ↗</a>` : `<button class="go" data-lib="${b.id}">`}${((store.get("bookpos", {})["lib-" + b.id] || {}).p) ? L("cont") : "Start reading"}${b.sw ? "" : "</button>"}</div>`;
+   ${b.sw ? `<a class="go" href="https://storyweaver.org.in/en/stories/${b.sw}" data-web="https://storyweaver.org.in/en/stories/${b.sw}" data-wt="${esc(b.t)}">Read story</a>` : `<button class="go" data-lib="${b.id}">`}${((store.get("bookpos", {})["lib-" + b.id] || {}).p) ? L("cont") : "Start reading"}${b.sw ? "" : "</button>"}</div>`;
   $("#detail").classList.add("open");
 }
 
 document.addEventListener("click", e => {
   const a = e.target.closest("[data-libl]"); if (a) { libLang = a.dataset.libl; store.set("libLang", libLang); libShown = 60; renderBooks(); return; }
+  const wv = e.target.closest("[data-web]"); if (wv) { e.preventDefault(); openWeb(wv.dataset.web, wv.dataset.wt); return; }
   const ex = e.target.closest("a[target=_blank]"); if (ex && window.KathaAndroid) { e.preventDefault(); KathaAndroid.openUrl(ex.href); return; }
   const sa = e.target.closest("[data-shelfall]"); if (sa) { libGenre = sa.dataset.shelfall; libShown = 120; renderBooks(); scrollTo(0, 0); return; }
   if (e.target.closest("[data-libmore]")) { libShown += 120; renderBooks(); return; }

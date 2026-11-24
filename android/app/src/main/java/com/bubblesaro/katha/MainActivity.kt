@@ -57,6 +57,7 @@ class MainActivity : AppCompatActivity() {
             t.speak(text, TextToSpeech.QUEUE_FLUSH, null, "k" + System.currentTimeMillis())
         }
         @JavascriptInterface fun stop() { tts?.stop() }
+        @JavascriptInterface fun openInApp(url: String, title: String) { runOnUiThread { startActivity(Intent(this@MainActivity, WebReaderActivity::class.java).putExtra("url", url).putExtra("title", title)) } }
         @JavascriptInterface fun openUrl(url: String) { runOnUiThread { startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url))) } }
     }
 
