@@ -5,16 +5,12 @@ import csv, io, json, os, re, time, urllib.request
 
 OUT = "docs/books"; os.makedirs(OUT, exist_ok=True)
 UA = {"User-Agent": "KathaLibrary/1.0 (Bubbles; https://bubbles.foo.ng/Katha/)"}
-MIRRORS = ["https://gutenberg.pglaf.org", "https://aleph.gutenberg.org", "https://www.gutenberg.org"]
-def get(url, tries=2):
-    # Gutenberg's main site often refuses cloud servers, so files come from its official mirrors
-    urls = [url.replace("https://www.gutenberg.org", m) for m in MIRRORS] if "/cache/epub/" in url else [url]
-    for u in urls:
-        for i in range(tries):
-            try:
-                with urllib.request.urlopen(urllib.request.Request(u, headers=UA), timeout=60) as r: return r.read()
-            except Exception as e:
-                print("  retry", u, e); time.sleep(3 * (i + 1))
+def get(url, tries=3):
+    for i in range(tries):
+        try:
+            with urllib.request.urlopen(urllib.request.Request(url, headers=UA), timeout=60) as r: return r.read()
+        except Exception as e:
+            print("  retry", url, e); time.sleep(5 * (i + 1))
     return None
 
 print("catalog…", flush=True)
@@ -29,14 +25,15 @@ for start in range(1, 400, 25):
         if i not in popular: popular.append(i)
     time.sleep(2)
 print("popular english:", len(popular), flush=True)
-if len(popular) < 100:  # popularity list unavailable: early Gutenberg numbers are the best-known classics
-    popular += sorted((i for i, r in cat.items() if r.get("Language", "").strip() == "en" and i not in popular), key=int)
 
 GENRES = [("Poetry", ["poetry", "poems", "verse"]), ("Drama", ["drama", "plays", "tragedies", "comedies"]),
-          ("Science Fiction", ["science fiction"]), ("True Crime", ["crime nonfiction", "true crime", "trials", "murder--case"]), ("Mystery", ["detective", "mystery", "crime"]), ("Horror", ["horror", "gothic", "ghost"]),
-          ("Adventure", ["adventure", "sea stories", "western"]), ("Romance", ["love stories", "romance"]), ("Children", ["children", "juvenile", "fairy tales", "nursery"]),
-          ("Humour", ["humor", "humour", "satire"]), ("Philosophy", ["philosophy", "ethics"]), ("Religion", ["religion", "bible", "hindu", "buddh", "sacred"]),
-          ("History", ["history", "war"]), ("Travel", ["travel", "voyages", "description and travel"]), ("Biography", ["biography", "autobiography", "memoir"]), ("Science", ["science", "mathematics", "natural history"]),
+          ("Science Fiction", ["science fiction"]), ("Fantasy", ["fantasy", "fantastic fiction", "magic", "dragons"]),
+          ("True Crime", ["crime nonfiction", "true crime", "trials", "murder--case"]), ("Mystery", ["detective", "mystery", "crime", "murder"]),
+          ("Horror", ["horror", "gothic", "ghost", "vampire", "supernatural"]), ("Success", ["success", "conduct of life", "self-help", "self-realization", "new thought", "wealth"]),
+          ("Children", ["children", "juvenile", "fairy tales", "nursery", "picture books"]), ("Romance", ["love stories", "romance", "courtship"]),
+          ("Adventure", ["adventure", "sea stories", "western"]), ("Humour", ["humor", "humour", "satire"]), ("Philosophy", ["philosophy", "ethics"]),
+          ("Religion", ["religion", "bible", "hindu", "buddh", "sacred"]), ("Biography", ["biography", "autobiography", "memoir"]),
+          ("History", ["history", "war"]), ("Travel", ["travel", "voyages", "description and travel"]), ("Science", ["science", "mathematics", "natural history", "medicine", "anatomy"]),
           ("Short Stories", ["short stories"]), ("Mythology", ["mythology", "legend", "folklore", "epic"]), ("Fiction", ["fiction", "novel"])]
 def genre(r):
     s = (r.get("Subjects", "") + " " + r.get("Bookshelves", "")).lower()
@@ -53,10 +50,10 @@ pick = []
 for code, cap in (("te", 150), ("hi", 80)):
     ids = [i for i, r in cat.items() if code in [x.strip() for x in r.get("Language", "").split(";")]]
     pick += [(i, code) for i in sorted(ids, key=int)[:cap]]
-TARGET = 400
+TARGET = 480
 # make sure the shelves people ask for are well stocked: horror, mysteries and real crime cases
 ranked = popular + sorted((i for i in cat if i not in popular), key=int)
-for g, cap in (("Horror", 40), ("Mystery", 45), ("True Crime", 25)):
+for g, cap in (("Fantasy", 30), ("Science Fiction", 35), ("Mystery", 40), ("Horror", 35), ("True Crime", 20), ("Romance", 30), ("Success", 20), ("Children", 30), ("Adventure", 25), ("Biography", 15), ("Science", 15)):
     got = 0
     for i in ranked:
         r = cat.get(i)
