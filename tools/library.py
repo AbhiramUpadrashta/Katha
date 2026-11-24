@@ -5,12 +5,16 @@ import csv, gzip, io, json, os, re, time, urllib.parse, urllib.request
 
 OUT = "docs/books"; os.makedirs(OUT, exist_ok=True)
 UA = {"User-Agent": "KathaLibrary/1.0 (Bubbles; https://bubbles.foo.ng/Katha/)"}
-def get(url, tries=3):
-    for i in range(tries):
-        try:
-            with urllib.request.urlopen(urllib.request.Request(url, headers=UA), timeout=60) as r: return r.read()
-        except Exception as e:
-            print("  retry", url, e); time.sleep(5 * (i + 1))
+MIRRORS = ["https://gutenberg.pglaf.org", "https://aleph.gutenberg.org", "https://www.gutenberg.org"]
+def get(url, tries=2):
+    # Gutenberg's main site often refuses cloud servers, so files come from its official mirrors
+    urls = [url.replace("https://www.gutenberg.org", m) for m in MIRRORS] if "/cache/epub/" in url else [url]
+    for u in urls:
+        for i in range(tries):
+            try:
+                with urllib.request.urlopen(urllib.request.Request(u, headers=UA), timeout=60) as r: return r.read()
+            except Exception as e:
+                print("  retry", u, e); time.sleep(3 * (i + 1))
     return None
 
 print("catalog…", flush=True)
@@ -25,6 +29,8 @@ for start in range(1, 1500, 25):
         if i not in popular: popular.append(i)
     time.sleep(2)
 print("popular english:", len(popular), flush=True)
+if len(popular) < 100:  # popularity list unavailable: early Gutenberg numbers are the best-known classics
+    popular += sorted((i for i, r in cat.items() if r.get("Language", "").strip() == "en" and i not in popular), key=int)
 
 GENRES = [("Poetry", ["poetry", "poems", "verse"]), ("Drama", ["drama", "plays", "tragedies", "comedies"]),
           ("Science Fiction", ["science fiction"]), ("Fantasy", ["fantasy", "fantastic fiction", "magic", "dragons"]),
