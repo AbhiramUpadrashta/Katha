@@ -478,16 +478,13 @@ const LIB_BASE = PLATFORM === "android" ? "https://bubbles.foo.ng/Katha/books/" 
 const esc = t => String(t).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 function loadCatalog() {
   if (CATALOG) return Promise.resolve(CATALOG);
-  return fetch(LIB_BASE + "catalog.json").then(r => r.json()).then(j => (CATALOG = j)).catch(() => (CATALOG = []));
+  const DROP = new Set(["Science", "Philosophy", "Religion", "Travel", "History", "Success", "Poetry", "Drama", "Biography", "Picture Stories"]);
+  return fetch(LIB_BASE + "catalog.json").then(r => r.json()).then(j => (CATALOG = j.filter(b => !b.sw && !DROP.has(b.g)))).catch(() => (CATALOG = []));
 }
 const hueOf = s => { let h = 0; for (const c of String(s)) h = (h * 31 + c.charCodeAt(0)) % 360; return h; };
 // Free textbooks for students (open licences, read on the publisher's own site)
-const STUDY = [
- ["Computer Science", [["Introduction to Computer Science", "OpenStax", "https://openstax.org/details/books/introduction-computer-science"], ["Introduction to Python Programming", "OpenStax", "https://openstax.org/details/books/introduction-python-programming"], ["Principles of Data Science", "OpenStax", "https://openstax.org/details/books/principles-data-science"], ["Think Python", "Allen B. Downey", "https://greenteapress.com/wp/think-python-2e/"], ["Eloquent JavaScript", "Marijn Haverbeke", "https://eloquentjavascript.net/"], ["Pro Git", "Scott Chacon & Ben Straub", "https://git-scm.com/book/en/v2"], ["Operating Systems: Three Easy Pieces", "Remzi & Andrea Arpaci-Dusseau", "https://pages.cs.wisc.edu/~remzi/OSTEP/"], ["The Linux Command Line", "William Shotts", "https://linuxcommand.org/tlcl.php"], ["Open Data Structures", "Pat Morin", "https://opendatastructures.org/"], ["Dive into Deep Learning", "Zhang, Lipton, Li & Smola", "https://d2l.ai/"]]],
- ["Medical & BiPC", [["Biology 2e", "OpenStax", "https://openstax.org/details/books/biology-2e"], ["Anatomy and Physiology 2e", "OpenStax", "https://openstax.org/details/books/anatomy-and-physiology-2e"], ["Microbiology", "OpenStax", "https://openstax.org/details/books/microbiology"], ["Chemistry 2e", "OpenStax", "https://openstax.org/details/books/chemistry-2e"], ["College Physics 2e", "OpenStax", "https://openstax.org/details/books/college-physics-2e"], ["Pharmacology for Nurses", "OpenStax", "https://openstax.org/details/books/pharmacology"], ["Medical-Surgical Nursing", "OpenStax", "https://openstax.org/details/books/medical-surgical-nursing"], ["Psychology 2e", "OpenStax", "https://openstax.org/details/books/psychology-2e"]]],
- ["Maths & General Knowledge", [["Calculus Volume 1", "OpenStax", "https://openstax.org/details/books/calculus-volume-1"], ["Introductory Statistics 2e", "OpenStax", "https://openstax.org/details/books/introductory-statistics-2e"], ["NCERT Textbooks (Classes 1–12)", "NCERT", "https://ncert.nic.in/textbook.php"], ["The World Factbook", "CIA (public domain)", "https://www.cia.gov/the-world-factbook/"], ["U.S. History", "OpenStax", "https://openstax.org/details/books/us-history"], ["Principles of Economics 3e", "OpenStax", "https://openstax.org/details/books/principles-economics-3e"]]],
-];
-const SHELVES = [["Fantasy", "Fantasy"], ["Science Fiction", "Science Fiction"], ["Mystery", "Murder & Mystery"], ["Horror", "Horror"], ["True Crime", "True Crime"], ["Romance", "Love Stories"], ["Success", "Success & Self-help"], ["Adventure", "Adventure"], ["Children", "Children & Cartoons"], ["Biography", "Biography"], ["History", "History"], ["Fiction", "Classic Novels"], ["Short Stories", "Short Stories"], ["Poetry", "Poetry"], ["Drama", "Drama"], ["Philosophy", "Philosophy"], ["Religion", "Religion & Spirituality"], ["Mythology", "Mythology & Folklore"], ["Science", "Science"], ["Travel", "Travel"], ["Humour", "Humour"], ["Literature", "Literature"]];
+const STUDY = [];
+const SHELVES = [["Fantasy", "Fantasy"], ["Science Fiction", "Science Fiction"], ["Mystery", "Murder & Mystery"], ["Horror", "Horror"], ["True Crime", "True Crime"], ["Romance", "Love Stories"], ["Adventure", "Adventure"], ["Children", "Children & Cartoons"], ["Fiction", "Classic Novels"], ["Short Stories", "Short Stories"], ["Mythology", "Mythology & Folklore"], ["Humour", "Humour"], ["Literature", "Literature"]];
 const COVER_BASE = "https://gutenberg.pglaf.org/cache/epub/";
 function bkCard(b, pos) {
   const h = hueOf(b.id + b.t), p = Math.round(((pos["lib-" + b.id] || {}).p || 0) * 100);
@@ -503,7 +500,7 @@ function renderBooks() {
   document.body.classList.add("libmode");
   const pos = store.get("bookpos", {}), q = query.toLowerCase();
   $("#chips").innerHTML = [["all", L("all")], ["en", "English"], ["hi", "हिंदी"], ["te", "తెలుగు"]].map(([k, n]) => `<button class="chip ${libLang === k ? "on" : ""}" data-libl="${k}">${n}</button>`).join("");
-  let html = `<div class="libhead"><h1>${L("lib")}</h1><p>${CATALOG ? CATALOG.length + " " + L("books") + " · " : ""}free classics, full books, Kindle-style reading</p></div>`;
+  let html = `<div class="libhead"><h1>${L("lib")}</h1><p>${CATALOG ? CATALOG.length + " " + L("books") + " · " : ""}novels, stories and crime · read like a real book</p></div>`;
   const row = (title, inner, n, key) => `<section class="shelf"><h3>${title}${n ? `<small>${n}</small>` : ""}${key ? `<button class="chip" style="margin-left:auto;padding:5px 12px" data-shelfall="${esc(key)}">See all →</button>` : ""}</h3><div class="row">${inner}</div><div class="plank"></div></section>`;
   const cards = (x, pos) => x.slice(0, 40).map(b => bkCard(b, pos)).join("");
   if (!CATALOG) { $("#lists").innerHTML = html + `<p class="empty">${L("loading")}</p>`; loadCatalog().then(() => shelf_is_books() && renderBooks()); return; }
@@ -522,8 +519,7 @@ function renderBooks() {
     if (books.length) html += row(l === "te" ? "తెలుగు పుస్తకాలు" : "हिंदी पुस्तकें", cards(books, pos), books.length);
     if (pics.length) html += row(l === "te" ? "తెలుగు బొమ్మల కథలు" : "हिंदी चित्र-कथाएँ", cards(pics, pos), pics.length, l + "|Picture Stories");
   }
-  for (const [g, title] of [...SHELVES, ["Picture Stories", "Picture stories for kids"]]) { const x = pool.filter(b => b.g === g && b.l === "en"); if (x.length) html += row(title, cards(x, pos), x.length, x.length > 40 ? "en|" + g : ""); }
-  if (!q && libLang !== "hi" && libLang !== "te") for (const [title, list] of STUDY) html += row(title + " — free textbooks", list.map(studyCard).join(""), list.length);
+  for (const [g, title] of SHELVES) { const x = pool.filter(b => b.g === g && b.l === "en"); if (x.length) html += row(title, cards(x, pos), x.length, x.length > 40 ? "en|" + g : ""); }
   if (!pool.length && q) html += `<p class="empty">${L("none")}</p>`;
   $("#lists").innerHTML = html;
 }
